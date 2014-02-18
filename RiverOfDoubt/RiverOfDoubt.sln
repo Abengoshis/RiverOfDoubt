@@ -5,6 +5,8 @@ Project("{68B11DE1-1E9E-9724-5CDE-7834E8CD3DDA}") = "RiverOfDoubt", "Assembly-CS
 EndProject
 Project("{68B11DE1-1E9E-9724-5CDE-7834E8CD3DDA}") = "RiverOfDoubt", "Assembly-CSharp.csproj", "{022B22F5-2D95-00BA-94D6-AB215C439E03}"
 EndProject
+Project("{68B11DE1-1E9E-9724-5CDE-7834E8CD3DDA}") = "RiverOfDoubt", "Assembly-UnityScript-firstpass.unityproj", "{29EE8B55-2A17-ABB2-31A3-8E681AB6999B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,11 +21,15 @@ Global
 		{022B22F5-2D95-00BA-94D6-AB215C439E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{022B22F5-2D95-00BA-94D6-AB215C439E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{022B22F5-2D95-00BA-94D6-AB215C439E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29EE8B55-2A17-ABB2-31A3-8E681AB6999B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29EE8B55-2A17-ABB2-31A3-8E681AB6999B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29EE8B55-2A17-ABB2-31A3-8E681AB6999B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29EE8B55-2A17-ABB2-31A3-8E681AB6999B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-								GlobalSection(MonoDevelopProperties) = preSolution
+												GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
