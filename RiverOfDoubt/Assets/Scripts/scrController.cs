@@ -1,20 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class scrPlayer : MonoBehaviour
+public class scrController : MonoBehaviour
 {	
-	public GameObject Boat;
 	public bool PlayerIsFocus;	// Whether the player can be controlled.
 	public float WalkSpeed;	// The speed to apply when walking.
 	public float BoatSpeed;	// The speed of the boat.
 	public float BoatTurn;	// The turn speed of the boat.
+	private Transform boat { get { return this.transform.parent; } }
 
 	private bool switchPressed = false;	// Whether trying to switch.
-	private Transform switchDoor;	// The door to interact with.
-
-	// The boat's position before updating, stored in order to move the player with the boat.
-	private Vector3 boatLastPosition;
-	private Quaternion boatLastRotation;
+	private Transform switchDoor = null;	// The door to interact with.
 
 	// Switch timer variables.
 	private float switchTimer = 0;
@@ -23,12 +19,6 @@ public class scrPlayer : MonoBehaviour
 	void Start ()
 	{
 		Screen.lockCursor = true;
-
-		// Find the door.
-		switchDoor = Boat.transform.FindChild("Door");
-
-		// Initialize the boat's last position.
-		boatLastPosition = Boat.transform.position;
 	}
 
 	void Update ()
@@ -39,27 +29,20 @@ public class scrPlayer : MonoBehaviour
 			switchTimer -= Time.deltaTime;
 			if (switchTimer < 0)
 				switchTimer = 0;
-
-			// The player is free to roam, so make the player move with the boat.
-			this.transform.position += Boat.transform.position - boatLastPosition;
-			
-			// Roughly rotate the camera with the boat. // NOTE: Probably not needed really.
-			Camera.main.transform.rotation = Quaternion.Euler(Camera.main.transform.rotation.eulerAngles + Boat.transform.rotation.eulerAngles - boatLastRotation.eulerAngles);
-			
-			// Set the last position and rotation to the current position and rotation for the next update.
-			boatLastRotation = Boat.transform.rotation;
-			boatLastPosition = Boat.transform.position;
 			
 			// Check if the player is looking at the door.
 			Ray lookRay = new Ray(Camera.main.transform.position - Camera.main.transform.forward * 0.1f, Camera.main.transform.forward);
 			RaycastHit hit;
 			if (Physics.Raycast(lookRay, out hit, 2, 1 << LayerMask.NameToLayer("Interactive")))
 			{
-				if (hit.collider.transform == switchDoor)
+				if (hit.collider.name == "Door")
 				{
 					// Check if the player wants to interact.
 					if (switchPressed == false && Input.GetAxis("Interact") != 0)
 					{	
+						// Set the switchDoor to this door.
+						switchDoor = hit.collider.transform;
+
 						// Swap control to the boat.
 						PlayerIsFocus = false;
 						
@@ -70,6 +53,8 @@ public class scrPlayer : MonoBehaviour
 					// Light up the door to show you can click it. L4D2 style borders?
 					Debug.Log ("Looking at the door!");
 				}
+
+				Debug.Log (hit.transform.name);
 			}
 		}
 		else
@@ -96,14 +81,8 @@ public class scrPlayer : MonoBehaviour
 	
 	void FixedUpdate()
 	{
-		// Stop the player's rigidbody from sleeping.
-		this.rigidbody.WakeUp();
-
-		// Reset the player's velocity to zero.
-		this.rigidbody.velocity = Vector3.zero;
-
 		// Constantly set the boat's velocity to keep it moving.
-		Boat.rigidbody.velocity = Boat.transform.forward * BoatSpeed;
+		boat.rigidbody.velocity = boat.forward * BoatSpeed;
 
 		// Control either the player or the boat.
 		if (PlayerIsFocus == true)
@@ -129,12 +108,14 @@ public class scrPlayer : MonoBehaviour
 			this.transform.Rotate (0, 180, 0);
 
 			// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.
-			Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(30, 0, 0), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
+			Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(boat.transform.eulerAngles + new Vector3(25, 0, 0)), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
 		}
 
 		// Smoothstep lerp the position of the camera between the player's first person view position and the boat's third person view position.
-		Camera.main.transform.position = Vector3.Lerp (this.transform.position + Vector3.up * this.transform.localScale.y, Boat.transform.position + new Vector3(0, 12, -15), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
+		Camera.main.transform.position = Vector3.Lerp (this.transform.position + Vector3.up * this.transform.localScale.y, boat.position + new Vector3(-18 * boat.forward.x, 11, -18 * boat.forward.z), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
 
+		// Set the player's velocity to the boat's velocity.
+		this.rigidbody.velocity = boat.rigidbody.velocity;
 	}
 	
 	void ControlPlayer()
@@ -158,6 +139,6 @@ public class scrPlayer : MonoBehaviour
 		Camera.main.GetComponent<MouseLook>().enabled = false;
 
 		// Turn the boat.
-		Boat.rigidbody.AddTorque(0, Input.GetAxis ("Horizontal") * BoatTurn, 0);
+		boat.rigidbody.AddTorque(0, Input.GetAxis ("Horizontal") * BoatTurn, 0);
 	}
 }
