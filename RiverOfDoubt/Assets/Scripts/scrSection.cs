@@ -109,7 +109,9 @@ public class scrSection : MonoBehaviour
 				// Instantiate the rock.
 				rocks[numRocks - 1] = ((GameObject)Instantiate (gameManager.Rocks[Random.Range (0, gameManager.Rocks.Length)],
 	             	new Vector3(minX, waters[0].position.y, this.transform.position.z) + new Vector3(availablePositions[positionAcross, positionDown].x, 0, availablePositions[positionAcross, positionDown].y) * largeRock.localScale.x,
-	            	Quaternion.Euler(Random.Range (0, 360), Random.Range (0, 360), Random.Range (0, 360)))).transform;
+	            	gameManager.Rocks[0].transform.rotation)).transform;
+
+				rocks[numRocks - 1].FindChild ("Graphics").rotation = Quaternion.Euler(Random.Range (0, 360), Random.Range (0, 360), Random.Range (0, 360));
 
 				// Decrease the number of rocks.
 				numRocks--;

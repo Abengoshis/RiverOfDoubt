@@ -46,8 +46,9 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Animals\scrAnimal.cs" />
+     <Compile Include="Assets\Scripts\Animals\scrTreeBird.cs" />
      <Compile Include="Assets\Scripts\MouseLook.cs" />
-     <Compile Include="Assets\Scripts\scrAnimal.cs" />
      <Compile Include="Assets\Scripts\scrBoat.cs" />
      <Compile Include="Assets\Scripts\scrController.cs" />
      <Compile Include="Assets\Scripts\scrGameManager.cs" />

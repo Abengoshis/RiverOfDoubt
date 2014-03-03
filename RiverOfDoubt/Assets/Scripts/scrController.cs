@@ -9,6 +9,9 @@ public class scrController : MonoBehaviour
 	public float BoatTurn;	// The turn speed of the boat.
 	private Transform boat { get { return this.transform.parent; } }
 
+	private bool firePressed = false;	// Whether trying to fire.
+	private int gunDamage = 1;	// DEBUG have gun prefab list.
+
 	private bool switchPressed = false;	// Whether trying to switch.
 	private Transform switchDoor = null;	// The door to interact with.
 
@@ -29,13 +32,27 @@ public class scrController : MonoBehaviour
 			switchTimer -= Time.deltaTime;
 			if (switchTimer < 0)
 				switchTimer = 0;
-			
-			// Check if the player is looking at the door.
+
 			Ray lookRay = new Ray(Camera.main.transform.position - Camera.main.transform.forward * 0.1f, Camera.main.transform.forward);
 			RaycastHit hit;
+
+			// Check if the player wants to shoot.
+			if (Input.GetAxis("Fire") > 0)
+			{
+				if (firePressed == false && Physics.SphereCast (lookRay, 1, out hit, 100, 1 << LayerMask.NameToLayer("Animal")))
+					hit.transform.GetComponent<scrAnimal>().Shoot(gunDamage);
+
+				firePressed = true;
+			}
+			else
+			{
+				firePressed = false;
+			}
+
+			// Check if the player is looking at the door.
 			if (Physics.Raycast(lookRay, out hit, 2, 1 << LayerMask.NameToLayer("Interactive")))
 			{
-				if (hit.collider.name == "Door")
+				if (hit.collider.name == "LeftDoor" || hit.collider.name == "RightDoor")
 				{
 					// Check if the player wants to interact.
 					if (switchPressed == false && Input.GetAxis("Interact") != 0)
@@ -103,16 +120,16 @@ public class scrController : MonoBehaviour
 		if (switchTimer != 0)
 		{
 			// Keep the player next to and facing towards from the switch door.
-			this.transform.position = new Vector3(switchDoor.position.x, this.transform.position.y, switchDoor.position.z) + switchDoor.transform.forward * this.transform.localScale.z;
+			this.transform.localPosition = new Vector3(switchDoor.localPosition.x, this.transform.localPosition.y, switchDoor.localPosition.z) + (switchDoor.name[0] == 'R' ? Vector3.right : Vector3.left) * this.transform.localScale.z;
 			this.transform.rotation = switchDoor.transform.rotation;
 			this.transform.Rotate (0, 180, 0);
 
 			// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.
-			Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(boat.transform.eulerAngles + new Vector3(25, 0, 0)), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
+			Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(new Vector3(25, 0, 0)), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
 		}
 
 		// Smoothstep lerp the position of the camera between the player's first person view position and the boat's third person view position.
-		Camera.main.transform.position = Vector3.Lerp (this.transform.position + Vector3.up * this.transform.localScale.y, boat.position + new Vector3(-18 * boat.forward.x, 11, -18 * boat.forward.z), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
+		Camera.main.transform.position = Vector3.Lerp (this.transform.position + Vector3.up * this.transform.localScale.y, boat.position + new Vector3(-18 * Vector3.forward.x, 11, -18 * Vector3.forward.z), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
 
 		// Set the player's velocity to the boat's velocity.
 		this.rigidbody.velocity = boat.rigidbody.velocity;
