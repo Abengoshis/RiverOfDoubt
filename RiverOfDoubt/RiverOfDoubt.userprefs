@@ -1,8 +1,10 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\scrSection.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Animals\scrOverheadBird.cs">
     <Files>
-      <File FileName="Assets\Scripts\scrSection.cs" Line="114" Column="5" />
+      <File FileName="Assets\Scripts\Animals\scrTreeBird.cs" Line="6" Column="31" />
+      <File FileName="Assets\Scripts\Animals\scrOverheadBird.cs" Line="27" Column="52" />
+      <File FileName="Assets\Scripts\Animals\scrAnimal.cs" Line="39" Column="6" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

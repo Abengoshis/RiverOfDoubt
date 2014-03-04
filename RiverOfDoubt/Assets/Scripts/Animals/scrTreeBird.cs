@@ -7,7 +7,7 @@ public class scrTreeBird : scrAnimal
 
 	void Start ()
 	{
-	
+		prize = Parts.Feathers;
 	}
 
 	protected override void Update ()

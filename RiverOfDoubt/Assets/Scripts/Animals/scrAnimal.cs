@@ -3,9 +3,11 @@ using System.Collections;
 
 public class scrAnimal : MonoBehaviour
 {
+	public enum Parts { Feathers, Tusk, Tail }
+
 	// public static float comboTimer; ??
 	public int Health = 1;
-	public int Points = 0;
+	protected Parts prize;	// The valuable prize part of the animal acquired when it is killed. // SHOULD BE STRING? DICTIONARY OF PARTS?
 	private float deathFadeDelay = 4;
 	private float deathFadeTimer = 0;
 
@@ -21,16 +23,21 @@ public class scrAnimal : MonoBehaviour
 		if (Health <= 0)
 		{
 			// Fade the animal over time.
-			Color colour = this.renderer.material.color;
-			colour.a = 1 - deathFadeTimer / deathFadeDelay;
-			this.renderer.material.color = colour;
+			//MeshRenderer[] meshRenderers = this.GetComponentsInChildren<MeshRenderer>();
 
-			if (deathFadeTimer >= deathFadeDelay)
-			{
-				Destroy (this.gameObject);
-			}
-
-			deathFadeTimer += Time.deltaTime;
+			//foreach (MeshRenderer mr in meshRenderers)
+			//{
+			//	Color colour = mr.material.color;
+			//	colour.a = 1 - deathFadeTimer / deathFadeDelay;
+			//	mr.material.color = colour;
+			//}
+			//
+			//if (deathFadeTimer >= deathFadeDelay)
+			//{
+			//	Destroy (this.gameObject);
+			//}
+			//
+			//deathFadeTimer += Time.deltaTime;
 		}
 	}
 	
