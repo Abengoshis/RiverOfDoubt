@@ -3,30 +3,31 @@ using System.Collections;
 
 public class scrBoat : MonoBehaviour
 {
+	public GameObject BigSplashPrefab;
 	public int Health;
 
 	private float wobble = 0;
-	private float invincibleDelay = 3;
-	private float invincibleTimer;
+	private float wobbleDelay = 3;
+	private float wobbleTimer = 0;
 
 	// Use this for initialization
 	void Start ()
 	{
-		invincibleTimer = invincibleDelay;
+		wobbleTimer = wobbleDelay;
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-		if (invincibleTimer < invincibleDelay)
+		if (wobbleTimer < wobbleDelay)
 		{
-			invincibleTimer += Time.deltaTime;
+			wobbleTimer += Time.deltaTime;
 
 			this.transform.rotation = Quaternion.Euler(this.transform.eulerAngles.x,
 			                                           this.transform.eulerAngles.y,
-			                                           wobble * Mathf.Sin (Mathf.PI * invincibleTimer / (0.2f * invincibleDelay)));
+			                                           wobble * Mathf.Sin (Mathf.PI * wobbleTimer / (0.2f * wobbleDelay)));
 
-			wobble = Mathf.Lerp (wobble, 3, invincibleTimer / invincibleDelay);
+			wobble = Mathf.Lerp (wobble, 3, wobbleTimer / wobbleDelay);
 		}
 	}
 
@@ -43,25 +44,38 @@ public class scrBoat : MonoBehaviour
 
 		if (other.tag == "Obstacle")
 		{
-			if (invincibleTimer >= invincibleDelay)
+			if (wobbleTimer >= wobbleDelay)
 			{
-				if (other.name == "SmallRock(Clone)")
+				if (other.transform.parent.name == "SmallRock(Clone)")
 				{
 					Health -= 1;
-					wobble = 4;
 				}
-				else if (other.name == "MediumRock(Clone)")
+				else if (other.transform.parent.name == "MediumRock(Clone)")
 				{
 					Health -= 2;
-					wobble = 8;
 				}
-				else if (other.name == "LargeRock(Clone)")
+				else if (other.transform.parent.name == "LargeRock(Clone)")
 				{
 					Health -= 3;
-					wobble = 12;
+				}
+				else
+				{
+					Debug.Log (other.name);
 				}
 
-				invincibleTimer = 0;
+				this.rigidbody.velocity = Vector3.zero;
+				Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
+
+				// Make the obstacle fall.
+				other.transform.parent.rigidbody.useGravity = true;
+
+				// Destroy the obstacle after 5 seconds.
+				Destroy (other.transform.parent.gameObject, 5);
+
+				// Instantly destroy the obstacle's collider so it doesn't collide again.
+				Destroy (other);
+
+				wobbleTimer = 0;
 			}
 		}
 	}

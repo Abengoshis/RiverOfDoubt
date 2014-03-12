@@ -11,6 +11,8 @@ public class scrController : MonoBehaviour
 
 	private bool firePressed = false;	// Whether trying to fire.
 	private int gunDamage = 1;	// DEBUG have gun prefab list.
+	private float recoilTimer = -1, recoilDelay = 0.3f;	// The recoil of the recently fired gun.
+	private Transform gunWielder;
 
 	private bool switchPressed = false;	// Whether trying to switch.
 	private Transform switchDoor = null;	// The door to interact with.
@@ -19,6 +21,7 @@ public class scrController : MonoBehaviour
 	void Start ()
 	{
 		Screen.lockCursor = true;
+		gunWielder = Camera.main.transform.FindChild("Gun Camera").FindChild("Gun Wielder").transform;
 	}
 
 	void Update ()
@@ -33,18 +36,7 @@ public class scrController : MonoBehaviour
 			Ray lookRay = new Ray(Camera.main.transform.position - Camera.main.transform.forward * 0.1f, Camera.main.transform.forward);
 			RaycastHit hit;
 
-			// Check if the player wants to shoot.
-			if (Input.GetAxis("Fire") > 0)
-			{
-				if (firePressed == false && Physics.SphereCast (lookRay, 1, out hit, 1000, 1 << LayerMask.NameToLayer("Animal")))
-					hit.transform.GetComponent<scrAnimal>().Shoot(gunDamage);
-
-				firePressed = true;
-			}
-			else
-			{
-				firePressed = false;
-			}
+			CheckGunFire(lookRay);
 
 			// Check if the player is looking at the door.
 			if (Physics.Raycast(lookRay, out hit, 2, 1 << LayerMask.NameToLayer("Interactive")))
@@ -95,8 +87,9 @@ public class scrController : MonoBehaviour
 	
 	void FixedUpdate()
 	{
-		// Constantly set the boat's velocity to keep it moving.
-		boat.rigidbody.velocity = boat.forward * BoatSpeed;
+		// Accelerate the boat forwards.
+		boat.rigidbody.velocity += boat.transform.forward * BoatSpeed * Time.fixedDeltaTime * 0.2f;
+		boat.rigidbody.velocity = boat.transform.forward * Mathf.Min (boat.rigidbody.velocity.magnitude, BoatSpeed);
 
 		// Control either the player or the boat.
 		if (PlayerIsFocus == true)
@@ -116,7 +109,7 @@ public class scrController : MonoBehaviour
 		// Check if transiting to or from the player (not controlling the player).
 		if (switchTimer != 0)
 		{
-			// Keep the player next to and facing towards from the switch door.
+			// Keep the player next to the switch door and facing the boat's front.
 			this.transform.localPosition = new Vector3(switchDoor.localPosition.x, this.transform.localPosition.y, switchDoor.localPosition.z) + (switchDoor.name[0] == 'R' ? Vector3.right : Vector3.left) * this.transform.localScale.z;
 			this.transform.rotation = switchDoor.transform.rotation;
 			this.transform.Rotate (0, 180, 0);
@@ -138,6 +131,46 @@ public class scrController : MonoBehaviour
 
 		// Set the player's velocity to the boat's velocity.
 		this.rigidbody.velocity = boat.rigidbody.velocity;
+	}
+
+	void CheckGunFire(Ray hitscan)
+	{
+		// Check if the player wants to shoot.	// HAVE A LIST OF WEAPONS WITH RECOIL VALUES, DAMAGE, MODEL ETC.
+		if (Input.GetAxis("Fire") > 0)
+		{
+			// Don't allow the player to hold down fire, and don't allow shooting while the recoil timer is running.
+			if (firePressed == false && recoilTimer == -1)
+			{
+				RaycastHit hit;
+				if (Physics.SphereCast (hitscan, 1, out hit, 1000, 1 << LayerMask.NameToLayer("Animal")))
+					hit.transform.GetComponent<scrAnimal>().Shoot(gunDamage);
+
+				recoilTimer = 0;
+				firePressed = true;
+			}
+		}
+		else
+		{
+			firePressed = false;
+		}
+
+		if (recoilTimer != -1)
+		{
+			// Run the recoil timer.
+			recoilTimer += Time.deltaTime;
+
+			// Cause the camera to shift upwards with recoil. // REPLACE 0.5f BY RECOIL AMOUNT
+			Camera.main.GetComponent<MouseLook>().rotationY += 0.5f * Mathf.Sin (Mathf.PI * 2 * recoilTimer / recoilDelay);
+
+			// Cause the gun to shift backwards with recoil.	// REPLACE 0.5f BY ANOTHER RECOIL AMOUNT, NOT NECESSARILY THE SAME AS THE PREVIOUS ONE.
+			gunWielder.localPosition = 0.5f * Vector3.back * Mathf.Sin (Mathf.PI * recoilTimer / recoilDelay);
+
+			if (recoilTimer >= recoilDelay)
+			{
+				// Stop the recoil timer.
+				recoilTimer = -1;
+			}
+		}
 	}
 	
 	void ControlPlayer()

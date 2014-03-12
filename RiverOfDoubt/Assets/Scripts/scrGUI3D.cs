@@ -38,9 +38,10 @@ public class scrGUI3D : MonoBehaviour
 
 	private static List<Collectable> collectionItems = new List<Collectable>();
 	private static Vector3 collectionPoint = new Vector3(-4, -2, 5);
-	private static float collectionStayTime = 0.5f;
+	private static float collectionStayTime = 1.5f;
 
 	private static GameObject instance;
+	private static Camera gunCamera;
 
 	public Texture2D ReticleTexture;
 
@@ -48,11 +49,15 @@ public class scrGUI3D : MonoBehaviour
 	void Start ()
 	{
 		instance = this.gameObject;
+		gunCamera = Camera.main.transform.FindChild("Gun Camera").camera;
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
+		// Whether to show the gun camera or not depends on whether the reticle is visible.
+		gunCamera.enabled = ReticleIsVisible;
+
 		for (int i = collectionItems.Count - 1; i >= 0; i--)
 		{
 			// Run the collectable's collection timer.

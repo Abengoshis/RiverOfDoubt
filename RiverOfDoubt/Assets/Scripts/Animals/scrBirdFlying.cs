@@ -32,7 +32,8 @@ public class scrBirdFlying : scrAnimal
 			rightWing.localRotation = Quaternion.Euler(-flappyBird, 0, -flappyBird);
 
 			// Face the direction of travel.
-			this.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.LookRotation(this.rigidbody.velocity), 3 * Time.deltaTime);
+			if (this.rigidbody.velocity != Vector3.zero)
+				this.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.LookRotation(this.rigidbody.velocity), 3 * Time.deltaTime);
 
 			// Level out over time.
 			if (this.rigidbody.velocity.y != 0)
