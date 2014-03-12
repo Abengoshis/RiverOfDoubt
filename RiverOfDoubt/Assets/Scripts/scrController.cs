@@ -14,11 +14,8 @@ public class scrController : MonoBehaviour
 
 	private bool switchPressed = false;	// Whether trying to switch.
 	private Transform switchDoor = null;	// The door to interact with.
+	private float switchTimer = 0, switchDelay = 1;	// Switch timer variables.
 
-	// Switch timer variables.
-	private float switchTimer = 0;
-	private float switchDelay = 1;
-	
 	void Start ()
 	{
 		Screen.lockCursor = true;
@@ -39,7 +36,7 @@ public class scrController : MonoBehaviour
 			// Check if the player wants to shoot.
 			if (Input.GetAxis("Fire") > 0)
 			{
-				if (firePressed == false && Physics.SphereCast (lookRay, 1, out hit, 100, 1 << LayerMask.NameToLayer("Animal")))
+				if (firePressed == false && Physics.SphereCast (lookRay, 1, out hit, 1000, 1 << LayerMask.NameToLayer("Animal")))
 					hit.transform.GetComponent<scrAnimal>().Shoot(gunDamage);
 
 				firePressed = true;
@@ -126,8 +123,16 @@ public class scrController : MonoBehaviour
 
 			// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.
 			Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(new Vector3(25, 0, 0)), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
+		
+			// Disable the reticle.
+			scrGUI3D.ReticleIsVisible = false;
 		}
-
+		else
+		{
+			// Enable the reticle when the player has been reached.
+			scrGUI3D.ReticleIsVisible = true;
+		}
+		
 		// Smoothstep lerp the position of the camera between the player's first person view position and the boat's third person view position.
 		Camera.main.transform.position = Vector3.Lerp (this.transform.position + Vector3.up * this.transform.localScale.y, boat.position + new Vector3(-18 * Vector3.forward.x, 11, -18 * Vector3.forward.z), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
 

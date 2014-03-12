@@ -10,7 +10,8 @@ public class scrSection : MonoBehaviour
 	{
 		gameManager = _gameManager;
 	}
-	
+
+	// Properties of the section.
 	public Transform[] Connectors;
 	public scrSection PreviousSection { get; protected set; }
 	private scrSection[] nextSections;
@@ -20,6 +21,7 @@ public class scrSection : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+
 	}
 	
 	// Update is called once per frame
@@ -46,6 +48,8 @@ public class scrSection : MonoBehaviour
 			// Generate rocks for the next section.
 			nextSections[i].GenerateRocks(10);
 
+			nextSections[i].GenerateAnimals(10, 10, 10, 10);
+
 			// Set the previous section of the next section to this section.
 			nextSections[i].PreviousSection = this;
 		}
@@ -54,6 +58,20 @@ public class scrSection : MonoBehaviour
 		entered = true;
 
 		Debug.Log ("Generating next section.");
+	}
+
+	public void GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int etc)
+	{
+		#region Overhead Birds
+		for (int i = 0; i < overheadBirds; i++)
+		{
+			// Instantiate a flying bird at a random position after the end of the section.
+			Rigidbody burd = ((GameObject)Instantiate (gameManager.BirdFlyingPrefab, this.transform.position + new Vector3(Random.Range (-60f, 60f), Random.Range (25f, 40f), 400 + Random.Range (0f, 800f)), Quaternion.Euler(0, 180, 0))).rigidbody;
+
+			// Give the bird force to make it move in the opposite direction to the general direction of the player.
+			burd.AddForce(0, 0, -600);
+		}
+		#endregion
 	}
 
 	public void GenerateRocks(int numRocks)
@@ -133,6 +151,7 @@ public class scrSection : MonoBehaviour
 				if (rocks[i] != null)
 					Destroy (rocks[i].gameObject);
 		}
+
 	}
 
 	/// <summary>
