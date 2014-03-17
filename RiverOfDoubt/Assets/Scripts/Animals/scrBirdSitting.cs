@@ -10,8 +10,6 @@ public class scrBirdSitting : scrAnimal
 
 	void Start ()
 	{
-		Health = 1;
-		prize = Parts.Feathers;
 	}
 
 	protected override void Update ()
@@ -19,7 +17,7 @@ public class scrBirdSitting : scrAnimal
 		base.Update();
 	}
 
-	public override void Shoot (int damage)
+	public override void Shoot (float damage)
 	{
 		// Cause all tree birds in the flee radius to flee.
 		scrBirdSitting[] sittingBirds = GameObject.FindObjectsOfType<scrBirdSitting>();
@@ -72,7 +70,7 @@ public class scrBirdSitting : scrAnimal
 		this.rigidbody.AddTorque(Random.Range (-100, 101), Random.Range (-100, 101), Random.Range (-100, 101));
 
 		// Collect a feather.
-		scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 1f);
+		scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 1f, scrGUI3D.Parts.Feather);
 
 		base.Kill ();
 	}

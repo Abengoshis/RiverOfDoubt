@@ -11,6 +11,7 @@ class Collectable
 
 	public float TimerProgress { get { return collectTimer / collectDelay; } }
 
+
 	public Collectable(Transform transform, float collectDelay)
 	{
 		this.transform = transform;
@@ -31,25 +32,34 @@ class Collectable
 }
 
 public class scrGUI3D : MonoBehaviour
-{
+{	
 	public static bool ReticleIsVisible = true;
 	private static Rect reticleDestination { get { return new Rect(Screen.width / 2 - 16, Screen.height / 2 - 16, 32, 32); } }
 	private static Rect reticleSource = new Rect(0, 0, 1, 1);
 
 	private static List<Collectable> collectionItems = new List<Collectable>();
-	private static Vector3 collectionPoint = new Vector3(-4, -2, 5);
+	private static Vector3 collectionPoint = new Vector3(-4.175f, -2, 5);
 	private static float collectionStayTime = 1.5f;
+	private static bool collecting = false;
+	private static Transform chestLid;
+	private static float chestTimer = 0;
+	private static float chestDelay = 0.5f;
 
-	private static GameObject instance;
+	public enum Parts { Feather, Tusk, Mask }
+	private static int[] collectedParts = new int[3];
+
+	private static scrGUI3D instance;
 	private static Camera gunCamera;
 
 	public Texture2D ReticleTexture;
+	public AudioClip AudioCollect;
 
 	// Use this for initialization
 	void Start ()
 	{
-		instance = this.gameObject;
+		instance = this;
 		gunCamera = Camera.main.transform.FindChild("Gun Camera").camera;
+		chestLid = this.transform.FindChild("Chest").FindChild("Lid");
 	}
 	
 	// Update is called once per frame
@@ -57,6 +67,9 @@ public class scrGUI3D : MonoBehaviour
 	{
 		// Whether to show the gun camera or not depends on whether the reticle is visible.
 		gunCamera.enabled = ReticleIsVisible;
+
+		// Reset collecting. It will be flagged during the collection checking loop.
+		collecting = false;
 
 		for (int i = collectionItems.Count - 1; i >= 0; i--)
 		{
@@ -69,6 +82,9 @@ public class scrGUI3D : MonoBehaviour
 			}
 			else
 			{
+				// Currently collecting an item.
+				collecting = true;
+
 				// Reduce size after the item has reached the collection point.
 				if (collectionItems[i].TimerProgress >= 1)
 				{
@@ -82,6 +98,23 @@ public class scrGUI3D : MonoBehaviour
 				collectionItems[i].transform.Rotate (0, 150 * Time.deltaTime, 0);
 			}
 		}
+
+		// Run the chest timer forwards or backwards depending on the collection status.
+		if (collecting == true)
+		{
+			chestTimer += Time.deltaTime;
+			if (chestTimer >= chestDelay)
+				chestTimer = chestDelay;
+		}
+		else
+		{
+			chestTimer -= Time.deltaTime;
+			if (chestTimer <= 0)
+				chestTimer = 0;
+		}
+
+		// Rotate the chest lid with the chest timer.
+		chestLid.localEulerAngles = new Vector3(-60 * Mathf.SmoothStep(chestTimer, chestDelay, chestTimer / chestDelay), 0, 0);
 	}
 
 	void OnGUI()
@@ -90,7 +123,7 @@ public class scrGUI3D : MonoBehaviour
 			GUI.DrawTextureWithTexCoords(reticleDestination, ReticleTexture, reticleSource);
 	}
 
-	public static void CollectItem(GameObject itemPrefab, Vector3 worldPosition, float timeToCollect)
+	public static void CollectItem(GameObject itemPrefab, Vector3 worldPosition, float timeToCollect, Parts part)
 	{
 		// Get the screen position of the item.
 		Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
@@ -100,7 +133,15 @@ public class scrGUI3D : MonoBehaviour
 
 		// Instantiate the item.
 		Transform item = ((GameObject)Instantiate (itemPrefab, worldPosition, instance.transform.rotation)).transform;
+		item.gameObject.layer = LayerMask.NameToLayer("GUI");
+		foreach (Transform child in item.GetComponentsInChildren<Transform>())
+		{
+			child.gameObject.layer = item.gameObject.layer;
+		}
 
 		collectionItems.Add(new Collectable(item, timeToCollect));
+		instance.audio.PlayOneShot(instance.AudioCollect);
+
+		++collectedParts[(int)part];
 	}
 }

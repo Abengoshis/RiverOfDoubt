@@ -1,18 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class scrController : MonoBehaviour
 {	
+	[System.Serializable]
+	public class Weapon
+	{
+		public Transform ViewModel;
+		public float Recoil;
+		public float Damage;
+		public int Ammo;
+		public AudioClip Sound;
+	}
+
 	public bool PlayerIsFocus;	// Whether the player can be controlled.
 	public float WalkSpeed;	// The speed to apply when walking.
 	public float BoatSpeed;	// The speed of the boat.
 	public float BoatTurn;	// The turn speed of the boat.
 	private Transform boat { get { return this.transform.parent; } }
 
+	public AudioSource AudioShoot, AudioSpeech;
+	public Weapon[] Weapons;
+	public int Gun = 0;
+	private int nextGun = 0;
+	private float changeGunTimer = -1, changeGunDelay = 0.5f;
 	private bool firePressed = false;	// Whether trying to fire.
-	private int gunDamage = 1;	// DEBUG have gun prefab list.
 	private float recoilTimer = -1, recoilDelay = 0.3f;	// The recoil of the recently fired gun.
+	private Vector3 gunStandardRotation = new Vector3(4.285588f, 2.832306f, 0.2118239f);
 	private Transform gunWielder;
+	private Transform gunEffect;
+	private Light gunFlash;
 
 	private bool switchPressed = false;	// Whether trying to switch.
 	private Transform switchDoor = null;	// The door to interact with.
@@ -22,6 +40,8 @@ public class scrController : MonoBehaviour
 	{
 		Screen.lockCursor = true;
 		gunWielder = Camera.main.transform.FindChild("Gun Camera").FindChild("Gun Wielder").transform;
+		gunFlash = gunWielder.FindChild("Flash").light;
+		MakeNextGunActive();
 	}
 
 	void Update ()
@@ -133,20 +153,51 @@ public class scrController : MonoBehaviour
 		this.rigidbody.velocity = boat.rigidbody.velocity;
 	}
 
+	void ChangeGun(int gun)
+	{
+		nextGun = gun;
+		changeGunTimer = 0;
+	}
+
+	void MakeNextGunActive()
+	{
+		Weapons[Gun].ViewModel.gameObject.SetActive(false);
+
+		// Swap the guns so that they can be alternated between.
+		int temp = Gun;
+		Gun = nextGun;
+		nextGun = temp;
+
+		AudioShoot.clip = Weapons[Gun].Sound;
+		Weapons[Gun].ViewModel.gameObject.SetActive(true);
+		gunEffect = Weapons[Gun].ViewModel.FindChild("MuzzleEffect");
+	}
+
 	void CheckGunFire(Ray hitscan)
 	{
 		// Check if the player wants to shoot.	// HAVE A LIST OF WEAPONS WITH RECOIL VALUES, DAMAGE, MODEL ETC.
 		if (Input.GetAxis("Fire") > 0)
 		{
 			// Don't allow the player to hold down fire, and don't allow shooting while the recoil timer is running.
-			if (firePressed == false && recoilTimer == -1)
+			if (firePressed == false && recoilTimer == -1 && Weapons[Gun].Ammo != 0 && AudioShoot.isPlaying == false)
 			{
 				RaycastHit hit;
-				if (Physics.SphereCast (hitscan, 1, out hit, 1000, 1 << LayerMask.NameToLayer("Animal")))
-					hit.transform.GetComponent<scrAnimal>().Shoot(gunDamage);
+				if (Physics.Raycast (hitscan, out hit))
+					if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Animal"))
+						hit.transform.root.GetComponent<scrAnimal>().Shoot(Weapons[Gun].Damage);
+
+				if (Weapons[Gun].Ammo > 0)
+					--Weapons[Gun].Ammo;
 
 				recoilTimer = 0;
 				firePressed = true;
+				gunFlash.gameObject.SetActive(true);
+				gunEffect.gameObject.SetActive(true);
+				gunEffect.Rotate (0, 0, Random.Range (45f, 180f), Space.Self);
+
+				AudioShoot.clip = Weapons[Gun].Sound;
+				AudioShoot.pitch = Random.Range (0.9f, 1.1f);
+				AudioShoot.Play ();;
 			}
 		}
 		else
@@ -159,16 +210,24 @@ public class scrController : MonoBehaviour
 			// Run the recoil timer.
 			recoilTimer += Time.deltaTime;
 
-			// Cause the camera to shift upwards with recoil. // REPLACE 0.5f BY RECOIL AMOUNT
-			Camera.main.GetComponent<MouseLook>().rotationY += 0.5f * Mathf.Sin (Mathf.PI * 2 * recoilTimer / recoilDelay);
+			// Cause the camera to shift upwards with recoil.
+			Camera.main.GetComponent<MouseLook>().rotationY += Weapons[Gun].Recoil * Mathf.Sin (Mathf.PI * 2 * recoilTimer / recoilDelay);
 
-			// Cause the gun to shift backwards with recoil.	// REPLACE 0.5f BY ANOTHER RECOIL AMOUNT, NOT NECESSARILY THE SAME AS THE PREVIOUS ONE.
-			gunWielder.localPosition = 0.5f * Vector3.back * Mathf.Sin (Mathf.PI * recoilTimer / recoilDelay);
+			// Cause the gun to shift backwards with recoil.
+			gunWielder.localPosition = Weapons[Gun].Recoil * Vector3.back * Mathf.Sin (Mathf.PI * recoilTimer / recoilDelay);
+			Weapons[Gun].ViewModel.localEulerAngles = gunStandardRotation + new Vector3(-10 * Weapons[Gun].Recoil * Mathf.Sin (Mathf.PI * recoilTimer / recoilDelay), 0, 0);
+
+			float effectFactor = Mathf.Min (recoilTimer / (recoilDelay * 0.4f), 1);
+			gunFlash.intensity = 8 * (1 - effectFactor);
+			gunEffect.renderer.material.SetColor("_TintColor", new Color(1 - effectFactor, 1 - effectFactor, 1 - effectFactor, 1f));
+			gunEffect.localScale = Vector3.one * (0.11f + 0.05f * Mathf.Sin (Mathf.PI * effectFactor));
 
 			if (recoilTimer >= recoilDelay)
 			{
 				// Stop the recoil timer.
 				recoilTimer = -1;
+				gunFlash.gameObject.SetActive(false);
+				gunEffect.gameObject.SetActive(false);
 			}
 		}
 	}

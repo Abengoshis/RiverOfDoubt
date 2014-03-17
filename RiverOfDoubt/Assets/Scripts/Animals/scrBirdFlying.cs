@@ -15,7 +15,6 @@ public class scrBirdFlying : scrAnimal
 		leftWing = this.transform.FindChild("LeftWing");
 		rightWing = this.transform.FindChild("RightWing");
 		flapOffset = Random.Range (0, 1000);
-		Health = 1;
 	}
 	
 	// Update is called once per frame
@@ -66,7 +65,7 @@ public class scrBirdFlying : scrAnimal
 		this.rigidbody.AddTorque(Random.Range (-100, 101), Random.Range (-100, 101), Random.Range (-100, 101));
 
 		// Collect a feather.
-		scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 1f);
+		scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 1f, scrGUI3D.Parts.Feather);
 
 		base.Kill ();
 	}

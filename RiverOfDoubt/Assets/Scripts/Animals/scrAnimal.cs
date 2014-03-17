@@ -3,18 +3,17 @@ using System.Collections;
 
 public class scrAnimal : MonoBehaviour
 {
-	public enum Parts { Feathers, Tusk, Tail }
-
 	// public static float comboTimer; ??
-	public int Health = 1;
-	protected Parts prize;	// The valuable prize part of the animal acquired when it is killed. // SHOULD BE STRING? DICTIONARY OF PARTS?
-	private float deathFadeDelay = 4;
-	private float deathFadeTimer = 0;
+	public GameObject DeathEffect;
+	public Vector3 DeathEffectPosition;
+	public float DeathEffectScale = 1;
+	public AudioClip AudioHurt, AudioHurtAlternate, AudioDeath, AudioDeathAlternate;
+	public float Health = 1;
 
 	// Use this for initialization
 	void Start ()
 	{
-	
+
 	}
 	
 	// Update is called once per frame
@@ -41,7 +40,7 @@ public class scrAnimal : MonoBehaviour
 		}
 	}
 	
-	public virtual void Shoot(int damage)
+	public virtual void Shoot(float damage)
 	{
 		if (Health > 0)
 		{
@@ -51,11 +50,27 @@ public class scrAnimal : MonoBehaviour
 			{
 				Kill ();
 			}
+			else
+			{
+				audio.pitch = Random.Range (0.9f, 1.1f);
+				if (Random.Range (0, 2) == 0)
+					audio.PlayOneShot(AudioHurt);
+				else
+					audio.PlayOneShot(AudioHurtAlternate);
+			}
 		}
 	}
 
 	protected virtual void Kill()
 	{
 		// Explode
+		DeathEffect = (GameObject)Instantiate(DeathEffect, this.transform.TransformPoint(DeathEffectPosition), this.transform.rotation);
+		DeathEffect.particleSystem.startSpeed *= DeathEffectScale;
+		DeathEffect.particleSystem.startSize *= DeathEffectScale;
+		audio.pitch = Random.Range (0.9f, 1.1f);
+		if (Random.Range (0, 2) == 0)
+			audio.PlayOneShot(AudioDeath);
+		else
+			audio.PlayOneShot(AudioDeathAlternate);
 	}
 }
