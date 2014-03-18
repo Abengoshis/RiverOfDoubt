@@ -46,15 +46,15 @@ public class scrBoat : MonoBehaviour
 		{
 			if (wobbleTimer >= wobbleDelay)
 			{
-				if (other.transform.parent.name == "SmallRock(Clone)")
+				if (other.transform.root.name == "SmallRock(Clone)")
 				{
 					Health -= 1;
 				}
-				else if (other.transform.parent.name == "MediumRock(Clone)")
+				else if (other.transform.root.name == "MediumRock(Clone)")
 				{
 					Health -= 2;
 				}
-				else if (other.transform.parent.name == "LargeRock(Clone)")
+				else if (other.transform.root.name == "LargeRock(Clone)")
 				{
 					Health -= 3;
 				}
@@ -67,10 +67,14 @@ public class scrBoat : MonoBehaviour
 				Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
 
 				// Make the obstacle fall.
-				other.transform.parent.rigidbody.useGravity = true;
+				other.transform.root.rigidbody.useGravity = true;
+
+				// If the other obstacle has a hinge, destroy the hinge.
+				if (other.transform.root.hingeJoint != null)
+					Destroy(other.transform.root.hingeJoint);
 
 				// Destroy the obstacle after 5 seconds.
-				Destroy (other.transform.parent.gameObject, 5);
+				Destroy (other.transform.root.gameObject, 5);
 
 				// Instantly destroy the obstacle's collider so it doesn't collide again.
 				Destroy (other);

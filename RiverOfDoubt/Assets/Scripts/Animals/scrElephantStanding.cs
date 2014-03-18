@@ -23,6 +23,7 @@ public class scrElephantStanding : scrAnimal
 				rearTimer += Time.deltaTime;
 
 				this.transform.eulerAngles = new Vector3(-20 * Mathf.Sin (Mathf.PI * 0.5f * rearTimer), this.transform.eulerAngles.y, this.transform.eulerAngles.z);
+				this.rigidbody.velocity = Vector3.zero;
 
 				if (rearTimer >= rearDelay)
 					rearTimer = -1;
@@ -36,9 +37,10 @@ public class scrElephantStanding : scrAnimal
 						if (Vector3.Distance(this.transform.position, player.transform.position) < 100)
 						{
 							Vector3 direction = TreeToPush.position - this.transform.position;
+							direction.y = 0;
 							direction.Normalize();
 							this.rigidbody.isKinematic = false;
-							this.rigidbody.velocity = direction * 10;
+							this.rigidbody.velocity = direction * 5;
 							Debug.Log ("Pushing Tree");
 						}
 					}

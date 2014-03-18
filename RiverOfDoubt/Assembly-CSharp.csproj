@@ -56,6 +56,7 @@
      <Compile Include="Assets\Scripts\scrDespawn.cs" />
      <Compile Include="Assets\Scripts\scrDespawnParticleSystem.cs" />
      <Compile Include="Assets\Scripts\scrFacePlayer.cs" />
+     <Compile Include="Assets\Scripts\scrFallingLog.cs" />
      <Compile Include="Assets\Scripts\scrGUI3D.cs" />
      <Compile Include="Assets\Scripts\scrGameManager.cs" />
      <Compile Include="Assets\Scripts\scrSection.cs" />
