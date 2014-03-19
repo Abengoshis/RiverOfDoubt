@@ -4,6 +4,7 @@ using System.Collections;
 public class scrGameManager : MonoBehaviour
 {
 	public GameObject[] Sections;
+	public GameObject[] SplitterSections;
 	public GameObject Boat;
 	public GameObject[] Rocks;
 	public GameObject BirdSittingPrefab, BirdFlyingPrefab;

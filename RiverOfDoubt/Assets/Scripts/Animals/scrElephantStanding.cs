@@ -23,7 +23,7 @@ public class scrElephantStanding : scrAnimal
 				rearTimer += Time.deltaTime;
 
 				this.transform.eulerAngles = new Vector3(-20 * Mathf.Sin (Mathf.PI * 0.5f * rearTimer), this.transform.eulerAngles.y, this.transform.eulerAngles.z);
-				this.rigidbody.velocity = Vector3.zero;
+				this.rigidbody.isKinematic = true;
 
 				if (rearTimer >= rearDelay)
 					rearTimer = -1;

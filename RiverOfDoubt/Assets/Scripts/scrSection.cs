@@ -13,6 +13,7 @@ public class scrSection : MonoBehaviour
 
 	// Properties of the section.
 	public Transform[] Connectors;
+	public bool CanGenerateSplitters;
 	public scrSection PreviousSection { get; protected set; }
 	private scrSection[] nextSections;
 	private Transform[] rocks;
@@ -42,13 +43,16 @@ public class scrSection : MonoBehaviour
 		// Generate the next sections for each connector.
 		for (int i = 0; i < Connectors.Length; i++)
 		{
-			// Find and add a random section to the connector.
-			nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(0, gameManager.Sections.Length)], Connectors[i].position, Quaternion.identity)).GetComponent<scrSection>();
+			// Find and add a random section to the connector. (If the section can generate splitters, give it a 50% chance to do so.
+			if (CanGenerateSplitters == true && Random.Range (0, 2) == 0)
+				nextSections[i] = ((GameObject)Instantiate(gameManager.SplitterSections[Random.Range(0, gameManager.SplitterSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+			else
+				nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(0, gameManager.Sections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
 
 			// Generate rocks for the next section.
 			nextSections[i].GenerateRocks(10);
 
-			nextSections[i].GenerateAnimals(10, 10, 10, 10);
+			nextSections[i].GenerateAnimals(10, 40, 10, 10);
 
 			// Set the previous section of the next section to this section.
 			nextSections[i].PreviousSection = this;

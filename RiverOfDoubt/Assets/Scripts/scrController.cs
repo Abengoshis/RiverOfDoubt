@@ -122,6 +122,13 @@ public class scrController : MonoBehaviour
 		{
 			ControlBoat();
 		}
+
+		// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.
+		if (switchTimer >= switchDelay)
+		{
+			Camera.main.transform.rotation = Quaternion.Lerp (Camera.main.transform.rotation, Quaternion.Euler(boat.eulerAngles + new Vector3(25, 0, 0)), Time.fixedDeltaTime);
+			Camera.main.transform.position = Vector3.Lerp (Camera.main.transform.position, boat.position + new Vector3(-18 * boat.forward.x, 11, -18 * boat.forward.z), 5 * Time.fixedDeltaTime);
+		}
 	}
 
 	void LateUpdate()
@@ -135,7 +142,8 @@ public class scrController : MonoBehaviour
 			this.transform.Rotate (0, 180, 0);
 
 			// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.
-			Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(new Vector3(25, 0, 0)), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
+			if (switchTimer < switchDelay)
+				Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(boat.eulerAngles + new Vector3(25, 0, 0)), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
 		
 			// Disable the reticle.
 			scrGUI3D.ReticleIsVisible = false;
@@ -147,7 +155,8 @@ public class scrController : MonoBehaviour
 		}
 		
 		// Smoothstep lerp the position of the camera between the player's first person view position and the boat's third person view position.
-		Camera.main.transform.position = Vector3.Lerp (this.transform.position + Vector3.up * this.transform.localScale.y, boat.position + new Vector3(-18 * Vector3.forward.x, 11, -18 * Vector3.forward.z), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
+		if (switchTimer < switchDelay)
+			Camera.main.transform.position = Vector3.Lerp (this.transform.position + Vector3.up * this.transform.localScale.y, boat.position + new Vector3(-18 * boat.forward.x, 11, -18 * boat.forward.z), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
 
 		// Set the player's velocity to the boat's velocity.
 		this.rigidbody.velocity = boat.rigidbody.velocity;

@@ -15,7 +15,7 @@ public class scrFallingLog : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-		if (splooshed == false && this.transform.eulerAngles.x >= 90)
+		if (splooshed == false && this.transform.eulerAngles.x >= 90 && this.transform.eulerAngles.x < 100)
 		{
 			Instantiate(BigSplashPrefab, this.transform.TransformPoint(new Vector3(0, 0.5f, 0)), BigSplashPrefab.transform.rotation);
 			Instantiate(BigSplashPrefab, this.transform.position, BigSplashPrefab.transform.rotation);

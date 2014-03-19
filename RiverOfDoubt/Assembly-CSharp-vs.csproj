@@ -46,6 +46,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Depth Mask Example\Scripts\SetRenderQueue.cs" />
      <Compile Include="Assets\Scripts\Animals\scrAnimal.cs" />
      <Compile Include="Assets\Scripts\Animals\scrBirdFlying.cs" />
      <Compile Include="Assets\Scripts\Animals\scrBirdSitting.cs" />
@@ -61,8 +62,10 @@
      <Compile Include="Assets\Scripts\scrGameManager.cs" />
      <Compile Include="Assets\Scripts\scrSection.cs" />
      <Compile Include="Assets\Scripts\scrWaves.cs" />
+     <Compile Include="Assets\Scripts\scrWhirlpool.cs" />
      <None Include="Assets\Standard Assets\Particles\Sources\Shaders\Particle Alpha Blend (Queue +100).shader" />
      <None Include="Assets\Standard Assets\Skyboxes\_skybox info.txt" />
+     <None Include="Assets\Depth Mask Example\Shaders\DepthMask.shader" />
      <None Include="Assets\Standard Assets\Water (Basic)\Sources\Shaders\FX-Water Simple.shader" />
  <Reference Include="Assembly-UnityScript-firstpass">
  <HintPath>Library\ScriptAssemblies\Assembly-UnityScript-firstpass.dll</HintPath>
