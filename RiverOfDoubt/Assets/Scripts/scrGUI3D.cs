@@ -37,6 +37,10 @@ public class scrGUI3D : MonoBehaviour
 	private static Rect reticleDestination { get { return new Rect(Screen.width / 2 - 16, Screen.height / 2 - 16, 32, 32); } }
 	private static Rect reticleSource = new Rect(0, 0, 1, 1);
 
+	private static Transform overlay;
+	private static float overlayTimer = 0;
+	private static float overlayDelay = 1.5f;
+
 	private static List<Collectable> collectionItems = new List<Collectable>();
 	private static Vector3 collectionPoint = new Vector3(-4.175f, -2, 5);
 	private static float collectionStayTime = 1.5f;
@@ -60,6 +64,7 @@ public class scrGUI3D : MonoBehaviour
 		instance = this;
 		gunCamera = Camera.main.transform.FindChild("Gun Camera").camera;
 		chestLid = this.transform.FindChild("Chest").FindChild("Lid");
+		overlay = this.transform.FindChild("Overlay");
 	}
 	
 	// Update is called once per frame
@@ -143,5 +148,37 @@ public class scrGUI3D : MonoBehaviour
 		instance.audio.PlayOneShot(instance.AudioCollect);
 
 		++collectedParts[(int)part];
+	}
+
+	public static void TransitionOverlayIn()
+	{
+		overlayTimer += Time.deltaTime;
+		if (overlayTimer >= overlayDelay)
+			overlayTimer = overlayDelay;
+
+		RenderSettings.fogEndDistance = Mathf.SmoothStep (400, 2, overlayTimer / overlayDelay);
+		RenderSettings.fogColor = new Color(0.36f, 0.42f, 0.38f);
+		Camera.main.clearFlags = CameraClearFlags.SolidColor;
+
+		Color temp = overlay.renderer.material.color;
+		temp.a = overlayTimer / overlayDelay * 0.75f;
+		overlay.renderer.material.color = temp;
+	}
+
+	public static void TransitionOverlayOut()
+	{
+		overlayTimer -= Time.deltaTime;
+		if (overlayTimer <= 0)
+		{
+			overlayTimer = 0;
+			RenderSettings.fogColor = new Color(0.35f, 0.28f, 0.26f);
+		}
+
+		RenderSettings.fogEndDistance = Mathf.Lerp (400, 2, overlayTimer / overlayDelay);
+		Camera.main.clearFlags = CameraClearFlags.Skybox;
+
+		Color temp = overlay.renderer.material.color;
+		temp.a = overlayTimer / overlayDelay * 0.75f;
+		overlay.renderer.material.color = temp;
 	}
 }

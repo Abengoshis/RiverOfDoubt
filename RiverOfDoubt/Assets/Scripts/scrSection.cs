@@ -52,7 +52,7 @@ public class scrSection : MonoBehaviour
 			// Generate rocks for the next section.
 			nextSections[i].GenerateRocks(10);
 
-			nextSections[i].GenerateAnimals(10, 40, 10, 10);
+			nextSections[i].GenerateAnimals(10, 20, 10, 10);
 
 			// Set the previous section of the next section to this section.
 			nextSections[i].PreviousSection = this;
@@ -70,10 +70,10 @@ public class scrSection : MonoBehaviour
 		for (int i = 0; i < overheadBirds; i++)
 		{
 			// Instantiate a flying bird at a random position after the end of the section.
-			Rigidbody burd = ((GameObject)Instantiate (gameManager.BirdFlyingPrefab, this.transform.position + new Vector3(Random.Range (-60f, 60f), Random.Range (25f, 40f), 400 + Random.Range (0f, 800f)), Quaternion.Euler(0, 180, 0))).rigidbody;
+			Rigidbody bird = ((GameObject)Instantiate (gameManager.BirdFlyingPrefab, this.transform.position + new Vector3(Random.Range (-60f, 60f), Random.Range (25f, 40f), 400 + Random.Range (0f, 800f)), Quaternion.Euler(0, 180, 0))).rigidbody;
 
 			// Give the bird force to make it move in the opposite direction to the general direction of the player.
-			burd.AddForce(0, 0, -600);
+			bird.AddForce(0, 0, -600);
 		}
 		#endregion
 	}

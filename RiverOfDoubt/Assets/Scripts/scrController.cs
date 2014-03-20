@@ -18,7 +18,7 @@ public class scrController : MonoBehaviour
 	public float WalkSpeed;	// The speed to apply when walking.
 	public float BoatSpeed;	// The speed of the boat.
 	public float BoatTurn;	// The turn speed of the boat.
-	private Transform boat { get { return this.transform.parent; } }
+	private Transform boat { get { return this.transform.root; } }
 
 	public AudioSource AudioShoot, AudioSpeech;
 	public Weapon[] Weapons;
@@ -103,6 +103,12 @@ public class scrController : MonoBehaviour
 		// If interact is not pressed, make it so it can be pressed again.
 		if (Input.GetAxis("Interact") == 0)
 			switchPressed = false;
+
+		// Check if the player is underwater.
+		if (this.transform.position.y < -0.3f)
+			scrGUI3D.TransitionOverlayIn();
+		else
+			scrGUI3D.TransitionOverlayOut();
 	}
 	
 	void FixedUpdate()
@@ -122,6 +128,12 @@ public class scrController : MonoBehaviour
 		{
 			ControlBoat();
 		}
+
+		// Make sure the boat's rotation doesn't go past a certain amount of degrees to stop the player from going backwards.
+		if (boat.eulerAngles.y <= 315 && boat.eulerAngles.y >= 180)
+			boat.rigidbody.AddTorque(0, 2 * BoatTurn, 0);
+		else if (boat.eulerAngles.y >= 45 && boat.eulerAngles.y <= 180)
+			boat.rigidbody.AddTorque(0, 2 * -BoatTurn, 0);
 
 		// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.
 		if (switchTimer >= switchDelay)
@@ -191,8 +203,8 @@ public class scrController : MonoBehaviour
 			if (firePressed == false && recoilTimer == -1 && Weapons[Gun].Ammo != 0 && AudioShoot.isPlaying == false)
 			{
 				RaycastHit hit;
-				if (Physics.Raycast (hitscan, out hit))
-					if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Animal"))
+				if (Physics.Raycast (hitscan, out hit, 10000, (1 << LayerMask.NameToLayer("Boat")) | (1 << LayerMask.NameToLayer ("Animal"))))
+					if (hit.transform.tag != "Obstacle" && hit.transform.gameObject.layer == LayerMask.NameToLayer("Animal"))
 						hit.transform.root.GetComponent<scrAnimal>().Shoot(Weapons[Gun].Damage);
 
 				if (Weapons[Gun].Ammo > 0)
