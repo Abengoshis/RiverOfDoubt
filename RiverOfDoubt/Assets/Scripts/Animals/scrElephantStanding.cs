@@ -66,7 +66,10 @@ public class scrElephantStanding : scrAnimal
 		// Give the elephant gravity and push it over.
 		this.rigidbody.isKinematic = false;
 		this.rigidbody.useGravity = true;
-		this.rigidbody.AddTorque(0, Random.Range (0, 2) == 2 ? 10000 : -10000, Random.Range (0, 2) == 2 ? 10000 : -10000);
+		//this.rigidbody.AddTorque(0, Random.Range (0, 2) == 2 ? 10000 : -10000, Random.Range (0, 2) == 2 ? 10000 : -10000);
+		Vector3 direction = this.transform.position - player.transform.position;
+		direction.Normalize();
+		this.rigidbody.AddForce(direction * this.rigidbody.mass * 200);
 
 		Destroy(this.transform.FindChild("HeadPivot").GetComponent<scrFacePlayer>());
 

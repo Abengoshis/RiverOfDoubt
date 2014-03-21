@@ -7,7 +7,7 @@ public class scrGameManager : MonoBehaviour
 	public GameObject[] SplitterSections;
 	public GameObject Boat;
 	public GameObject[] Rocks;
-	public GameObject BirdSittingPrefab, BirdFlyingPrefab;
+	public GameObject PopulatedPalmPrefab, BirdFlyingPrefab;
 
 	// Use this for initialization
 	void Start ()

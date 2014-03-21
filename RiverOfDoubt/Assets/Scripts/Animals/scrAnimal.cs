@@ -4,16 +4,18 @@ using System.Collections;
 public class scrAnimal : MonoBehaviour
 {
 	// public static float comboTimer; ??
+	public GameObject SplashEffect;
 	public GameObject DeathEffect;
 	public Vector3 DeathEffectPosition;
 	public float DeathEffectScale = 1;
 	public AudioClip AudioHurt, AudioHurtAlternate, AudioDeath, AudioDeathAlternate;
+	public AudioClip[] AudioIdle;
 	public float Health = 1;
+	private float idleTimer = 0, idleDelay = 0;
 
 	// Use this for initialization
 	void Start ()
 	{
-
 	}
 	
 	// Update is called once per frame
@@ -37,6 +39,19 @@ public class scrAnimal : MonoBehaviour
 			//}
 			//
 			//deathFadeTimer += Time.deltaTime;
+		}
+		else
+		{
+			if (AudioIdle.Length != 0)
+			{
+				idleTimer += Time.deltaTime;
+				if (idleTimer >= idleDelay)
+				{
+					idleTimer = 0;
+					idleDelay = Random.Range (10, 30);
+					audio.PlayOneShot(AudioIdle[Random.Range(0, AudioIdle.Length)]);
+				}
+			}
 		}
 	}
 	
@@ -72,5 +87,11 @@ public class scrAnimal : MonoBehaviour
 			audio.PlayOneShot(AudioDeath);
 		else
 			audio.PlayOneShot(AudioDeathAlternate);
+	}
+
+	void OnTriggerEnter(Collider other)
+	{
+		if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
+			Instantiate (SplashEffect, this.transform.position, Quaternion.identity);
 	}
 }

@@ -203,8 +203,8 @@ public class scrController : MonoBehaviour
 			if (firePressed == false && recoilTimer == -1 && Weapons[Gun].Ammo != 0 && AudioShoot.isPlaying == false)
 			{
 				RaycastHit hit;
-				if (Physics.Raycast (hitscan, out hit, 10000, (1 << LayerMask.NameToLayer("Boat")) | (1 << LayerMask.NameToLayer ("Animal"))))
-					if (hit.transform.tag != "Obstacle" && hit.transform.gameObject.layer == LayerMask.NameToLayer("Animal"))
+				if (Physics.Raycast (hitscan, out hit, 10000, (1 << LayerMask.NameToLayer("Boat")) | (1 << LayerMask.NameToLayer ("Animal") |  (1 << LayerMask.NameToLayer ("Obstacle")))))
+					if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Animal"))
 						hit.transform.root.GetComponent<scrAnimal>().Shoot(Weapons[Gun].Damage);
 
 				if (Weapons[Gun].Ammo > 0)

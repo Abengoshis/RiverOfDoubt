@@ -60,6 +60,7 @@
      <Compile Include="Assets\Scripts\scrFallingLog.cs" />
      <Compile Include="Assets\Scripts\scrGUI3D.cs" />
      <Compile Include="Assets\Scripts\scrGameManager.cs" />
+     <Compile Include="Assets\Scripts\scrRandomiseAudioOnStart.cs" />
      <Compile Include="Assets\Scripts\scrSection.cs" />
      <Compile Include="Assets\Scripts\scrWaves.cs" />
      <Compile Include="Assets\Scripts\scrWhirlpool.cs" />

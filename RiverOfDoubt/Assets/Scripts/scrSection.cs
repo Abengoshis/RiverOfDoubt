@@ -17,6 +17,7 @@ public class scrSection : MonoBehaviour
 	public scrSection PreviousSection { get; protected set; }
 	private scrSection[] nextSections;
 	private Transform[] rocks;
+	private List<Transform> nativeAnimals = new List<Transform>();
 	private bool entered = false;
 
 	// Use this for initialization
@@ -52,7 +53,7 @@ public class scrSection : MonoBehaviour
 			// Generate rocks for the next section.
 			nextSections[i].GenerateRocks(10);
 
-			nextSections[i].GenerateAnimals(10, 20, 10, 10);
+			nextSections[i].GenerateAnimals(3, 20, 10, 10);
 
 			// Set the previous section of the next section to this section.
 			nextSections[i].PreviousSection = this;
@@ -66,6 +67,31 @@ public class scrSection : MonoBehaviour
 
 	public void GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int etc)
 	{
+		Transform[] parts = this.transform.GetComponentsInChildren<Transform>();
+		#region Tree Birds
+		// Get all palm trees.
+		List<Transform> palms = new List<Transform>();
+		for (int i = 0; i < parts.Length; i++)
+			if (parts[i].name == "palm_trio")
+				palms.Add(parts[i]);
+
+		while (palms.Count > 0 && treeBirds > 0)
+		{
+			int i = Random.Range (0, palms.Count);
+			Transform replacement = ((GameObject)Instantiate (gameManager.PopulatedPalmPrefab, palms[i].position, palms[i].rotation)).transform;
+			replacement.parent = parts[i].parent;
+			foreach (scrBirdSitting bird in replacement.GetComponentsInChildren<scrBirdSitting>())
+			{
+				bird.transform.parent = null;
+				nativeAnimals.Add(bird.transform);
+			}
+			//replacement.DetachChildren();
+			Destroy(palms[i].gameObject);
+			palms.RemoveAt(i);
+			--treeBirds;
+		}
+		#endregion
+
 		#region Overhead Birds
 		for (int i = 0; i < overheadBirds; i++)
 		{
@@ -156,6 +182,13 @@ public class scrSection : MonoBehaviour
 					Destroy (rocks[i].gameObject);
 		}
 
+		for (int i = nativeAnimals.Count - 1; i >= 0; i--)
+		{
+			if (nativeAnimals[i] != null)
+				Destroy (nativeAnimals[i].gameObject);
+
+			nativeAnimals.RemoveAt (i);
+		}
 	}
 
 	/// <summary>

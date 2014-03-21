@@ -24,7 +24,7 @@ public class scrBirdFlying : scrAnimal
 		if (Health > 0)
 		{
 			// Determine the point in the flap cycle for the wings.
-			float flappyBird = 10 * Mathf.Sin (flapOffset + Time.time * 7.5f);
+			float flappyBird = 10 * Mathf.Sin (flapOffset + Time.time * 14.5f);
 
 			// Flap the wings.
 			leftWing.localRotation = Quaternion.Euler(-flappyBird, 0, flappyBird);

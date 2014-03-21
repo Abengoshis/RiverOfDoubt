@@ -63,8 +63,8 @@ public class scrGUI3D : MonoBehaviour
 	{
 		instance = this;
 		gunCamera = Camera.main.transform.FindChild("Gun Camera").camera;
-		chestLid = this.transform.FindChild("Chest").FindChild("Lid");
 		overlay = this.transform.FindChild("Overlay");
+		chestLid = this.transform.FindChild("Chest").FindChild("Lid");
 	}
 	
 	// Update is called once per frame
@@ -180,5 +180,15 @@ public class scrGUI3D : MonoBehaviour
 		Color temp = overlay.renderer.material.color;
 		temp.a = overlayTimer / overlayDelay * 0.75f;
 		overlay.renderer.material.color = temp;
+	}
+
+	void OnPreRender()
+	{
+		RenderSettings.fog = false;
+	}
+
+	void OnPostRender()
+	{
+		RenderSettings.fog = true;
 	}
 }

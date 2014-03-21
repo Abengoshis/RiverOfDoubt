@@ -44,7 +44,7 @@ public class scrBoat : MonoBehaviour
 				otherSection.PreviousSection.DestroyRedundantSections(otherSection);
 		}
 
-		if (other.tag == "Obstacle")
+		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
 		{
 			if (wobbleTimer >= wobbleDelay)
 			{
