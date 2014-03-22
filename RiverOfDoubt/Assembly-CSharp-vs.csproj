@@ -53,6 +53,7 @@
      <Compile Include="Assets\Scripts\Animals\scrElephantStanding.cs" />
      <Compile Include="Assets\Scripts\MouseLook.cs" />
      <Compile Include="Assets\Scripts\scrBoat.cs" />
+     <Compile Include="Assets\Scripts\scrCollectionText.cs" />
      <Compile Include="Assets\Scripts\scrController.cs" />
      <Compile Include="Assets\Scripts\scrDespawn.cs" />
      <Compile Include="Assets\Scripts\scrDespawnParticleSystem.cs" />

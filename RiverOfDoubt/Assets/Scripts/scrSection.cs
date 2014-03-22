@@ -53,7 +53,7 @@ public class scrSection : MonoBehaviour
 			// Generate rocks for the next section.
 			nextSections[i].GenerateRocks(10);
 
-			nextSections[i].GenerateAnimals(3, 20, 10, 10);
+			nextSections[i].GenerateAnimals(3, 20, 5, 10);
 
 			// Set the previous section of the next section to this section.
 			nextSections[i].PreviousSection = this;
@@ -68,18 +68,23 @@ public class scrSection : MonoBehaviour
 	public void GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int etc)
 	{
 		Transform[] parts = this.transform.GetComponentsInChildren<Transform>();
-		#region Tree Birds
-		// Get all palm trees.
+
 		List<Transform> palms = new List<Transform>();
+		List<Transform> hooks = new List<Transform>();
 		for (int i = 0; i < parts.Length; i++)
+		{
 			if (parts[i].name == "palm_trio")
 				palms.Add(parts[i]);
+			else if (parts[i].name == "AnimalHook")
+				hooks.Add(parts[i]);
+		}
 
+		#region Tree Birds
 		while (palms.Count > 0 && treeBirds > 0)
 		{
 			int i = Random.Range (0, palms.Count);
 			Transform replacement = ((GameObject)Instantiate (gameManager.PopulatedPalmPrefab, palms[i].position, palms[i].rotation)).transform;
-			replacement.parent = parts[i].parent;
+			replacement.parent = palms[i].parent;
 			foreach (scrBirdSitting bird in replacement.GetComponentsInChildren<scrBirdSitting>())
 			{
 				bird.transform.parent = null;
@@ -100,6 +105,28 @@ public class scrSection : MonoBehaviour
 
 			// Give the bird force to make it move in the opposite direction to the general direction of the player.
 			bird.AddForce(0, 0, -600);
+		}
+		#endregion
+
+		#region Elephants
+		while (hooks.Count > 0 && elephants > 0)
+		{
+			int i = Random.Range (0, hooks.Count);
+			Transform replacement = ((GameObject)Instantiate (gameManager.ElephantPrefab, hooks[i].position + hooks[i].forward, hooks[i].rotation)).transform;
+
+			// Choose whether to put a tree in front of the elephant.
+			if (Random.Range(0, 2) == 0)
+			{
+				Transform fallingLog = ((GameObject)Instantiate(gameManager.FallingLogPrefab, hooks[i].position + hooks[i].forward + Vector3.up * gameManager.FallingLogPrefab.transform.localScale.y * 0.5f, hooks[i].rotation)).transform;
+				nativeAnimals.Add(fallingLog);
+				replacement.Translate (0, 0, -12, Space.Self);
+				replacement.GetComponent<scrElephantStanding>().TreeToPush = fallingLog;
+			}
+		
+			nativeAnimals.Add(replacement);
+			Destroy(hooks[i].gameObject);
+			hooks.RemoveAt(i);
+			--elephants;
 		}
 		#endregion
 	}

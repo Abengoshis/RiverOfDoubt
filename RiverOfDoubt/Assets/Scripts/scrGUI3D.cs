@@ -42,7 +42,7 @@ public class scrGUI3D : MonoBehaviour
 	private static float overlayDelay = 1.5f;
 
 	private static List<Collectable> collectionItems = new List<Collectable>();
-	private static Vector3 collectionPoint = new Vector3(-4.175f, -2, 5);
+	private static Vector3 collectionPoint = new Vector3(-3.13f, -1.42f, 4.46f);
 	private static float collectionStayTime = 1.5f;
 	private static bool collecting = false;
 	private static Transform chestLid;
@@ -57,6 +57,7 @@ public class scrGUI3D : MonoBehaviour
 
 	public Texture2D ReticleTexture;
 	public AudioClip AudioCollect;
+	public GameObject CollectionTextPrefab;
 
 	// Use this for initialization
 	void Start ()
@@ -65,6 +66,7 @@ public class scrGUI3D : MonoBehaviour
 		gunCamera = Camera.main.transform.FindChild("Gun Camera").camera;
 		overlay = this.transform.FindChild("Overlay");
 		chestLid = this.transform.FindChild("Chest").FindChild("Lid");
+		collectionPoint = this.transform.TransformPoint(collectionPoint);
 	}
 	
 	// Update is called once per frame
@@ -93,11 +95,20 @@ public class scrGUI3D : MonoBehaviour
 				// Reduce size after the item has reached the collection point.
 				if (collectionItems[i].TimerProgress >= 1)
 				{
+					// Create one collection text when the object just starts reducing in size.
+					if (collectionItems[i].transform.localScale.x == 1)
+					{
+						string text = "+ " + collectionItems[i].transform.name;
+						text = text.Remove (text.IndexOf('('));
+						CollectionTextPrefab.GetComponent<TextMesh>().text = text;
+						Instantiate (CollectionTextPrefab, this.transform.TransformPoint(new Vector3(-4f, -2f, 5.75f)), this.transform.rotation);
+					}
+
 					collectionItems[i].transform.localScale = Vector3.Lerp (Vector3.one, Vector3.zero, Mathf.SmoothStep(0f, 1f, (collectionItems[i].TimerProgress - 1) / collectionStayTime));
 				}
 
 				// Smoothstep lerp the collectable towards the collection point.
-				collectionItems[i].transform.position = Vector3.Lerp(collectionItems[i].InitialPosition, this.transform.TransformPoint(collectionPoint), Mathf.SmoothStep(0f, 1f, collectionItems[i].TimerProgress));
+				collectionItems[i].transform.position = Vector3.Lerp(collectionItems[i].InitialPosition, collectionPoint, Mathf.SmoothStep(0f, 1f, collectionItems[i].TimerProgress));
 
 				// Rotate the collectable.
 				collectionItems[i].transform.Rotate (0, 150 * Time.deltaTime, 0);

@@ -40,6 +40,7 @@ public class scrElephantStanding : scrAnimal
 							direction.y = 0;
 							direction.Normalize();
 							this.rigidbody.isKinematic = false;
+							this.rigidbody.freezeRotation = true;
 							this.rigidbody.velocity = direction * 5;
 							Debug.Log ("Pushing Tree");
 						}
@@ -55,7 +56,7 @@ public class scrElephantStanding : scrAnimal
 	{
 		if (rearTimer > rearDelay * 0.5f)
 			rearTimer = rearDelay * 0.5f - (rearTimer - rearDelay * 0.5f);
-		else
+		else if (rearTimer < 0)
 			rearTimer = 0;
 
 		base.Shoot (damage);
@@ -66,6 +67,7 @@ public class scrElephantStanding : scrAnimal
 		// Give the elephant gravity and push it over.
 		this.rigidbody.isKinematic = false;
 		this.rigidbody.useGravity = true;
+		this.rigidbody.freezeRotation = false;
 		//this.rigidbody.AddTorque(0, Random.Range (0, 2) == 2 ? 10000 : -10000, Random.Range (0, 2) == 2 ? 10000 : -10000);
 		Vector3 direction = this.transform.position - player.transform.position;
 		direction.Normalize();
@@ -81,10 +83,13 @@ public class scrElephantStanding : scrAnimal
 
 	void OnCollisionEnter(Collision collision)
 	{
-		if (collision.gameObject.name == TreeToPush.name)
+		if (TreeToPush != null)
 		{
-			treePushed = true;
-			this.rigidbody.isKinematic = true;
+			if (collision.gameObject.name == TreeToPush.name)
+			{
+				treePushed = true;
+				this.rigidbody.isKinematic = true;
+			}
 		}
 	}
 }
