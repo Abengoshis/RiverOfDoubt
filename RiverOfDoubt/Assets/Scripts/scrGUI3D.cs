@@ -40,6 +40,7 @@ public class scrGUI3D : MonoBehaviour
 	private static Transform overlay;
 	private static float overlayTimer = 0;
 	private static float overlayDelay = 1.5f;
+	private static Color defaultFogColour;
 
 	private static List<Collectable> collectionItems = new List<Collectable>();
 	private static Vector3 collectionPoint = new Vector3(-3.13f, -1.42f, 4.46f);
@@ -67,6 +68,7 @@ public class scrGUI3D : MonoBehaviour
 		overlay = this.transform.FindChild("Overlay");
 		chestLid = this.transform.FindChild("Chest").FindChild("Lid");
 		collectionPoint = this.transform.TransformPoint(collectionPoint);
+		defaultFogColour = RenderSettings.fogColor;
 	}
 	
 	// Update is called once per frame
@@ -167,7 +169,7 @@ public class scrGUI3D : MonoBehaviour
 		if (overlayTimer >= overlayDelay)
 			overlayTimer = overlayDelay;
 
-		RenderSettings.fogEndDistance = Mathf.SmoothStep (400, 2, overlayTimer / overlayDelay);
+		RenderSettings.fogEndDistance = Mathf.SmoothStep (800, 2, overlayTimer / overlayDelay);
 		RenderSettings.fogColor = new Color(0.36f, 0.42f, 0.38f);
 		Camera.main.clearFlags = CameraClearFlags.SolidColor;
 
@@ -182,10 +184,10 @@ public class scrGUI3D : MonoBehaviour
 		if (overlayTimer <= 0)
 		{
 			overlayTimer = 0;
-			RenderSettings.fogColor = new Color(0.35f, 0.28f, 0.26f);
+			RenderSettings.fogColor = defaultFogColour;
 		}
 
-		RenderSettings.fogEndDistance = Mathf.Lerp (400, 2, overlayTimer / overlayDelay);
+		RenderSettings.fogEndDistance = Mathf.Lerp (800, 2, overlayTimer / overlayDelay);
 		Camera.main.clearFlags = CameraClearFlags.Skybox;
 
 		Color temp = overlay.renderer.material.color;

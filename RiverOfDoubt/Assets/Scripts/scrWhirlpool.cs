@@ -26,4 +26,12 @@ public class scrWhirlpool : MonoBehaviour
 				segments[i].Rotate(0, spinSpeed / (1 + i * 0.3f) * Time.deltaTime, 0);
 		}
 	}
+
+	void OnTriggerEnter(Collider other)
+	{
+		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle") && other.name != "Log(Clone)")
+		{
+			Destroy(other.gameObject);
+		}
+	}
 }

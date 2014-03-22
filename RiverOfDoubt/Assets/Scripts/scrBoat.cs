@@ -38,10 +38,11 @@ public class scrBoat : MonoBehaviour
 		if (other.tag == "Section")
 		{
 			scrSection otherSection = other.GetComponent<scrSection>();
-			otherSection.GenerateNextSections();
 
 			if (otherSection.PreviousSection != null)
 				otherSection.PreviousSection.DestroyRedundantSections(otherSection);
+
+			otherSection.GenerateNextSections(true);
 		}
 
 		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
