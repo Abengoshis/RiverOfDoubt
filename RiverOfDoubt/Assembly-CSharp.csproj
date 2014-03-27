@@ -51,6 +51,7 @@
      <Compile Include="Assets\Scripts\Animals\scrBirdFlying.cs" />
      <Compile Include="Assets\Scripts\Animals\scrBirdSitting.cs" />
      <Compile Include="Assets\Scripts\Animals\scrElephantStanding.cs" />
+     <Compile Include="Assets\Scripts\Animals\scrNative.cs" />
      <Compile Include="Assets\Scripts\MouseLook.cs" />
      <Compile Include="Assets\Scripts\scrBoat.cs" />
      <Compile Include="Assets\Scripts\scrCollectionText.cs" />

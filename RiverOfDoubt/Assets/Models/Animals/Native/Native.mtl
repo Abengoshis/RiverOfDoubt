@@ -1,0 +1,19 @@
+# Exported from Wings 3D 1.5.2
+newmtl Cylinder1_auv
+Ns 100.0
+d 1.0
+illum 2
+Kd 1.0 1.0 1.0
+Ka 1.0 1.0 1.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+
+newmtl Skin
+Ns 100.0
+d 1.0
+illum 2
+Kd 0.3 0.2 0.1
+Ka 0.3 0.2 0.1
+Ks 0.30736 0.30736 0.2704768
+Ke 0.0 0.0 0.0
+

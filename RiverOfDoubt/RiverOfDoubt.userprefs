@@ -1,14 +1,8 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\scrSection.cs">
     <Files>
-      <File FileName="RiverOfDoubt.sln" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrSection.cs" Line="142" Column="139" />
-      <File FileName="Assets\Scripts\scrWhirlpool.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrGUI3D.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrSection.cs" Line="143" Column="4" />
-      <File FileName="Assets\Scripts\scrBoat.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrController.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\scrSection.cs" Line="175" Column="187" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -46,6 +46,9 @@ public class scrController : MonoBehaviour
 
 	void Update ()
 	{
+		if (Input.GetKey (KeyCode.F5))
+			Application.LoadLevel (0);
+
 		// Run the switch timer backwards for player control and forwards for boat control.
 		if (PlayerIsFocus == true)
 		{
@@ -151,9 +154,17 @@ public class scrController : MonoBehaviour
 			if (switchTimer >= switchDelay)
 			{
 				// Keep the player next to the switch door and facing the boat's front.
-				this.transform.localPosition = new Vector3(switchDoor.localPosition.x, this.transform.localPosition.y, switchDoor.localPosition.z) + (switchDoor.name[0] == 'R' ? Vector3.right : Vector3.left) * this.transform.localScale.z;
 				this.transform.rotation = switchDoor.transform.rotation;
 				this.transform.Rotate (0, 90, 0);
+
+				if (switchDoor.name[0] == 'R')
+				{
+					this.transform.localPosition = new Vector3(switchDoor.localPosition.x, this.transform.localPosition.y, switchDoor.localPosition.z) + Vector3.right * this.transform.localScale.z;
+				}
+				else
+				{
+					this.transform.localPosition = new Vector3(switchDoor.localPosition.x, this.transform.localPosition.y, switchDoor.localPosition.z) + Vector3.left * this.transform.localScale.z;
+				}
 
 				// Ew ew ew quickfix.
 				Camera.main.GetComponent<MouseLook>().rotationX = this.transform.eulerAngles.y;
@@ -162,9 +173,16 @@ public class scrController : MonoBehaviour
 			else if (PlayerIsFocus == false)
 			{
 				// Keep the player next to the switch door and facing the door.
-				this.transform.localPosition = new Vector3(switchDoor.localPosition.x, this.transform.localPosition.y, switchDoor.localPosition.z) + (switchDoor.name[0] == 'R' ? Vector3.right : Vector3.left) * this.transform.localScale.z;
 				this.transform.rotation = switchDoor.transform.rotation;
-				this.transform.Rotate (0, 180, 0);
+				if (switchDoor.name[0] == 'R')
+				{
+					this.transform.localPosition = new Vector3(switchDoor.localPosition.x, this.transform.localPosition.y, switchDoor.localPosition.z) + Vector3.right * this.transform.localScale.z;
+				}
+				else
+				{
+					this.transform.localPosition = new Vector3(switchDoor.localPosition.x, this.transform.localPosition.y, switchDoor.localPosition.z) + Vector3.left * this.transform.localScale.z;
+					this.transform.Rotate (0, 180, 0);
+				}
 			}
 
 			// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.

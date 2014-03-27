@@ -55,12 +55,12 @@ public class scrSection : MonoBehaviour
 						if (Connectors[i].position.x > Connectors[i - 1].position.x)
 						{
 							if (Connectors[i - 1].name == "Section_Right(Clone)" || Connectors[i - 1].name == "Section_Line(Clone)")
-								nextSections[i] = ((GameObject)Instantiate(gameManager.SplitterSections[Random.Range(1, gameManager.SplitterSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+								nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(1, gameManager.SplitterSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
 						}
 						else
 						{
 							if (Connectors[i - 1].name == "Section_Left(Clone)" || Connectors[i - 1].name == "Section_Line(Clone)")
-								nextSections[i] = ((GameObject)Instantiate(gameManager.SplitterSections[Random.Range(0, gameManager.SplitterSections.Length - 1)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+								nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(0, gameManager.SplitterSections.Length - 1)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
 						}
 					}
 
@@ -71,7 +71,7 @@ public class scrSection : MonoBehaviour
 					nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(0, gameManager.Sections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
 				}
 				// Generate rocks for the next section.
-				nextSections[i].GenerateRocks(10);
+				//nextSections[i].GenerateRocks(10);
 
 				nextSections[i].GenerateAnimals(20, 4, 3, 10);
 
@@ -92,18 +92,22 @@ public class scrSection : MonoBehaviour
 		}
 	}
 
-	public void GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int etc)
+	public void GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int huts)
 	{
 		Transform[] parts = this.transform.GetComponentsInChildren<Transform>();
 
 		List<Transform> palms = new List<Transform>();
-		List<Transform> hooks = new List<Transform>();
+		List<Transform> animalHooks = new List<Transform>();
+		List<Transform> hutHooks = new List<Transform>();
+
 		for (int i = 0; i < parts.Length; i++)
 		{
 			if (parts[i].name == "palm_trio")
 				palms.Add(parts[i]);
 			else if (parts[i].name == "AnimalHook")
-				hooks.Add(parts[i]);
+				animalHooks.Add(parts[i]);
+			else if (parts[i].name == "HutHook")
+				hutHooks.Add(parts[i]);
 		}
 
 		#region Tree Birds
@@ -136,24 +140,48 @@ public class scrSection : MonoBehaviour
 		#endregion
 
 		#region Elephants
-		while (hooks.Count > 0 && elephants > 0)
+		while (animalHooks.Count > 0 && elephants > 0)
 		{
-			int i = Random.Range (0, hooks.Count);
-			Transform replacement = ((GameObject)Instantiate (gameManager.ElephantPrefab, hooks[i].position + hooks[i].forward + Vector3.up * 0.05f, hooks[i].rotation)).transform;
+			int i = Random.Range (0, animalHooks.Count);
+			Transform replacement = ((GameObject)Instantiate (gameManager.ElephantPrefab, animalHooks[i].position + animalHooks[i].forward + Vector3.up * 0.05f, animalHooks[i].rotation)).transform;
 
 			// Choose whether to put a tree in front of the elephant.
 			if (Random.Range(0, 2) == 0)
 			{
-				Transform fallingLog = ((GameObject)Instantiate(gameManager.FallingLogPrefab, hooks[i].position + hooks[i].forward + Vector3.up * gameManager.FallingLogPrefab.transform.localScale.y * 0.52f, hooks[i].rotation)).transform;
+				Transform fallingLog = ((GameObject)Instantiate(gameManager.FallingLogPrefab, animalHooks[i].position + animalHooks[i].forward + Vector3.up * gameManager.FallingLogPrefab.transform.localScale.y * 0.52f, animalHooks[i].rotation)).transform;
 				nativeAnimals.Add(fallingLog);
 				replacement.Translate (0, 0, -12, Space.Self);
 				replacement.GetComponent<scrElephantStanding>().TreeToPush = fallingLog;
 			}
 		
 			nativeAnimals.Add(replacement);
-			Destroy(hooks[i].gameObject);
-			hooks.RemoveAt(i);
+			Destroy(animalHooks[i].gameObject);
+			animalHooks.RemoveAt(i);
 			--elephants;
+		}
+		#endregion
+
+		#region Huts
+		Transform hutGroup = this.transform.FindChild("Huts");
+		if (hutGroup != null)
+		{
+			// 50% chance for huts to be on either side.
+			if (Random.Range (0, 2) == 0)
+				hutGroup.localScale = new Vector3(-hutGroup.localScale.x, hutGroup.localScale.y, hutGroup.localScale.z);
+
+			while (hutHooks.Count > 0 && huts > 0)
+			{
+				int i = Random.Range (0, hutHooks.Count);
+				Transform replacement = ((GameObject)Instantiate ((Random.Range (0, 2) == 0 ? gameManager.HutAPrefab : gameManager.HutBPrefab), hutHooks[i].position + Vector3.up * Random.Range (3, 5), Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;				
+				nativeAnimals.Add(replacement);
+				Destroy(hutHooks[i].gameObject);
+				hutHooks.RemoveAt(i);
+				--huts;
+
+				// 50% chance to have a native in the hut.
+				if (Random.Range (0, 2) == 0)
+					Instantiate (gameManager.NativePrefab, replacement.transform.position + Vector3.up * 2f, Quaternion.identity);
+			}
 		}
 		#endregion
 	}

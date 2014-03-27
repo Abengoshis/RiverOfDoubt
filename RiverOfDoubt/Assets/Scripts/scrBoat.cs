@@ -47,45 +47,56 @@ public class scrBoat : MonoBehaviour
 
 		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
 		{
-			if (wobbleTimer >= wobbleDelay)
+			if (other.transform.root.name == "SmallRock(Clone)")
 			{
-				if (other.transform.root.name == "SmallRock(Clone)")
-				{
-					Health -= 1;
-				}
-				else if (other.transform.root.name == "MediumRock(Clone)")
-				{
-					Health -= 2;
-				}
-				else if (other.transform.root.name == "LargeRock(Clone)")
-				{
-					Health -= 3;
-				}
-				else
-				{
-					Debug.Log (other.name);
-				}
+				Health -= 1;
+			}
+			else if (other.transform.root.name == "MediumRock(Clone)")
+			{
+				Health -= 2;
+			}
+			else if (other.transform.root.name == "LargeRock(Clone)")
+			{
+				Health -= 3;
+			}
+			else if (other.transform.root.name == "Hut_A(Clone)" || other.transform.root.name == "Hut_B(Clone)")
+			{
+				Health -= 2;
 
-				wobbleTimer = 0;
-
-				if (other.name != "Whirlpool")
+				// Detach all children and give them rigidbodies and torque. Destroy them after 3 seconds.
+				Transform[] children = other.transform.root.GetComponentsInChildren<Transform>();
+				for (int i = 0; i < children.Length; i++)
 				{
-					this.rigidbody.velocity = Vector3.zero;
-					Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
+					children[i].parent = null;
+					children[i].gameObject.AddComponent<Rigidbody>();
+					children[i].rigidbody.AddTorque(Random.Range(-50, 51), Random.Range (-50, 51), Random.Range (-50, 51));
+					if (children[i].collider)
+						Destroy (children[i].collider);
 
-					// Make the obstacle fall.
+					Destroy (children[i].gameObject, 3);
+				}
+			}
+
+			wobbleTimer = 0;
+
+			if (other.name != "Whirlpool")
+			{
+				this.rigidbody.velocity = Vector3.zero;
+				Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
+
+				// Make the obstacle fall.
+				if (other.transform.root.rigidbody != null)
 					other.transform.root.rigidbody.useGravity = true;
 
-					// If the other obstacle has a hinge, destroy the hinge.
-					if (other.transform.root.hingeJoint != null)
-						Destroy(other.transform.root.hingeJoint);
+				// If the other obstacle has a hinge, destroy the hinge.
+				if (other.transform.root.hingeJoint != null)
+					Destroy(other.transform.root.hingeJoint);
 
-					// Destroy the obstacle after 5 seconds.
-					Destroy (other.transform.root.gameObject, 5);
+				// Destroy the obstacle after 3 seconds.
+				Destroy (other.transform.root.gameObject, 3);
 
-					// Instantly destroy the obstacle's collider so it doesn't collide again.
-					Destroy (other);
-				}
+				// Instantly destroy the obstacle's collider so it doesn't collide again.
+				Destroy (other);
 			}
 		}
 	}
