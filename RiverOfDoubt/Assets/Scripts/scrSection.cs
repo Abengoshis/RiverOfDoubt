@@ -70,10 +70,13 @@ public class scrSection : MonoBehaviour
 				{
 					nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(0, gameManager.Sections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
 				}
+
 				// Generate rocks for the next section.
 				//nextSections[i].GenerateRocks(10);
+				StartCoroutine(GenerateRocks(10));
 
-				nextSections[i].GenerateAnimals(20, 4, 3, 10);
+				//nextSections[i].GenerateAnimals(20, 4, 3, 10);
+				StartCoroutine(GenerateAnimals(20, 4, 3, 10));
 
 				// Set the previous section of the next section to this section.
 				nextSections[i].PreviousSection = this;
@@ -92,7 +95,7 @@ public class scrSection : MonoBehaviour
 		}
 	}
 
-	public void GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int huts)
+	public IEnumerator GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int huts)
 	{
 		Transform[] parts = this.transform.GetComponentsInChildren<Transform>();
 
@@ -125,6 +128,8 @@ public class scrSection : MonoBehaviour
 			Destroy(palms[i].gameObject);
 			palms.RemoveAt(i);
 			--treeBirds;
+
+			yield return new WaitForSeconds(0.1f);
 		}
 		#endregion
 
@@ -136,6 +141,8 @@ public class scrSection : MonoBehaviour
 
 			// Give the bird force to make it move in the opposite direction to the general direction of the player.
 			bird.AddForce(0, 0, -600);
+
+			yield return new WaitForSeconds(0.1f);;
 		}
 		#endregion
 
@@ -158,6 +165,8 @@ public class scrSection : MonoBehaviour
 			Destroy(animalHooks[i].gameObject);
 			animalHooks.RemoveAt(i);
 			--elephants;
+
+			yield return new WaitForSeconds(0.1f);;
 		}
 		#endregion
 
@@ -181,12 +190,14 @@ public class scrSection : MonoBehaviour
 				// 50% chance to have a native in the hut.
 				if (Random.Range (0, 2) == 0)
 					Instantiate (gameManager.NativePrefab, replacement.transform.position + Vector3.up * 2f, Quaternion.identity);
+
+				yield return new WaitForSeconds(0.1f);;
 			}
 		}
 		#endregion
 	}
 
-	public void GenerateRocks(int numRocks)
+	public IEnumerator GenerateRocks(int numRocks)
 	{
 		// Get all children of this object.
 		Transform[] children = gameObject.GetComponentsInChildren<Transform>();
@@ -250,6 +261,8 @@ public class scrSection : MonoBehaviour
 				Vector2 temp = availablePositions[j, i];
 				availablePositions[j, i] = availablePositions[positionAcross, positionDown];
 				availablePositions[positionAcross, positionDown] = temp;
+
+				yield return new WaitForSeconds(0.1f);
 			}
 		}
 	}
