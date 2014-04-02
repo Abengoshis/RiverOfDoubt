@@ -141,7 +141,7 @@ public class scrController : MonoBehaviour
 		// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.
 		if (switchTimer >= switchDelay)
 		{
-			Camera.main.transform.rotation = Quaternion.Lerp (Camera.main.transform.rotation, Quaternion.Euler(boat.eulerAngles + new Vector3(25, 0, 0)), Time.fixedDeltaTime);
+			Camera.main.transform.rotation = Quaternion.Lerp (Camera.main.transform.rotation, Quaternion.Euler(boat.eulerAngles + new Vector3(20, 0, 0)), Time.fixedDeltaTime);
 			Camera.main.transform.position = Vector3.Lerp (Camera.main.transform.position, boat.position + new Vector3(-18 * boat.forward.x, 11, -18 * boat.forward.z), 5 * Time.fixedDeltaTime);
 		}
 	}
@@ -187,7 +187,7 @@ public class scrController : MonoBehaviour
 
 			// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.
 			if (switchTimer < switchDelay)
-				Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(boat.eulerAngles + new Vector3(25, 0, 0)), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
+				Camera.main.transform.rotation = Quaternion.Lerp (this.transform.rotation, Quaternion.Euler(boat.eulerAngles + new Vector3(20, 0, 0)), Mathf.SmoothStep (0, 1, switchTimer / switchDelay));
 		
 			// Disable the reticle.
 			scrGUI3D.ReticleIsVisible = false;
@@ -231,13 +231,15 @@ public class scrController : MonoBehaviour
 		// Check if the player wants to shoot.	// HAVE A LIST OF WEAPONS WITH RECOIL VALUES, DAMAGE, MODEL ETC.
 		if (Input.GetAxis("Fire") > 0)
 		{
+			Screen.lockCursor = true;
+
 			// Don't allow the player to hold down fire, and don't allow shooting while the recoil timer is running.
 			if (firePressed == false && recoilTimer == -1 && Weapons[Gun].Ammo != 0 && AudioShoot.isPlaying == false)
 			{
 				RaycastHit hit;
 				if (Physics.Raycast (hitscan, out hit, 10000, (1 << LayerMask.NameToLayer("Boat")) | (1 << LayerMask.NameToLayer ("Animal") |  (1 << LayerMask.NameToLayer ("Obstacle")))))
 					if (hit.transform.gameObject.layer == LayerMask.NameToLayer("Animal"))
-						hit.transform.root.GetComponent<scrAnimal>().Shoot(Weapons[Gun].Damage);
+						hit.transform.SendMessageUpwards("Shoot", Weapons[Gun].Damage);
 
 				if (Weapons[Gun].Ammo > 0)
 					--Weapons[Gun].Ammo;

@@ -1,13 +1,17 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\scrSection.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\scrGUI3D.cs">
     <Files>
-      <File FileName="Assets\Scripts\scrSection.cs" Line="265" Column="1" />
-      <File FileName="Assets\Scripts\scrSection.cs" Line="79" Column="51" />
+      <File FileName="Assets\Scripts\scrHutFudge.cs" Line="13" Column="3" />
+      <File FileName="Assets\Scripts\scrController.cs" Line="234" Column="29" />
+      <File FileName="Assets\Scripts\scrSection.cs" Line="46" Column="34" />
       <File FileName="Assets\Scripts\Animals\scrNative.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrController.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrGameManager.cs" Line="1" Column="1" />
-      <File FileName="Assets\Scripts\scrFacePlayer.cs" Line="20" Column="96" />
+      <File FileName="Assets\Scripts\scrBoat.cs" Line="111" Column="38" />
+      <File FileName="Assets\Scripts\Animals\scrElephantStanding.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\scrGameManager.cs" Line="8" Column="38" />
+      <File FileName="Assets\Scripts\Animals\scrAnimal.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\scrHutFudge.cs" Line="9" Column="31" />
+      <File FileName="Assets\Scripts\scrGUI3D.cs" Line="190" Column="51" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -62,7 +62,7 @@ public class scrElephantStanding : scrAnimal
 		base.Shoot (damage);
 	}
 
-	protected override void Kill ()
+	public override void Kill ()
 	{
 		// Give the elephant gravity and push it over.
 		this.rigidbody.isKinematic = false;

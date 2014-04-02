@@ -76,7 +76,7 @@ public class scrAnimal : MonoBehaviour
 		}
 	}
 
-	protected virtual void Kill()
+	public virtual void Kill()
 	{
 		// Explode
 		DeathEffect = (GameObject)Instantiate(DeathEffect, this.transform.TransformPoint(DeathEffectPosition), this.transform.rotation);
@@ -87,6 +87,9 @@ public class scrAnimal : MonoBehaviour
 			audio.PlayOneShot(AudioDeath);
 		else
 			audio.PlayOneShot(AudioDeathAlternate);
+
+		foreach (Transform child in GetComponentsInChildren<Transform>())
+			child.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 	}
 
 	void OnTriggerEnter(Collider other)

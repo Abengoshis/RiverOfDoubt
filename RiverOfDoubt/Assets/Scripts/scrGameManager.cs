@@ -5,6 +5,7 @@ public class scrGameManager : MonoBehaviour
 {
 	public GameObject[] Sections;
 	public GameObject[] SplitterSections;
+	public GameObject[] SpecialSections;
 	public GameObject Boat;
 	public GameObject[] Rocks;
 	public GameObject PopulatedPalmPrefab;

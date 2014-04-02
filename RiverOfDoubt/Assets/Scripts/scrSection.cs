@@ -14,6 +14,8 @@ public class scrSection : MonoBehaviour
 	// Properties of the section.
 	public Transform[] Connectors;
 	public bool CanGenerateSplitters;
+	public bool IsSplitterSection { get; protected set; }
+	public int SectionIndex { get; protected set; }
 	public scrSection PreviousSection { get; protected set; }
 	private scrSection[] nextSections;
 	private Transform[] rocks;
@@ -23,9 +25,36 @@ public class scrSection : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-
+		// Some sections have preset rocks. Deparent them if this is the case in order for them to function properly.
+		if (name == "Section_Lake_Volcano_Huts(Clone)")
+		{
+			StartCoroutine(FreeChildRocks());
+		}
 	}
-	
+
+	private IEnumerator FreeChildRocks()
+	{
+		foreach (Transform child in GetComponentsInChildren<Transform>(true))
+		{
+			if (child.name.Contains("Rock"))
+			{
+				if (child.Find ("Graphics"))
+					child.parent = null;
+			}
+
+
+			if (child.name == "LeftRocks")
+				Debug.Log ("LeftRocks");
+
+			if (child.name.Contains("rock"))
+			{
+				child.gameObject.SetActive(true);
+			}
+
+			yield return new WaitForSeconds(0.1f);
+		}
+	}
+
 	// Update is called once per frame
 	void Update ()
 	{
@@ -46,37 +75,55 @@ public class scrSection : MonoBehaviour
 			// Generate the next sections for each connector.
 			for (int i = 0; i < Connectors.Length; i++)
 			{
-				// Find and add a random section to the connector. (If the section can generate splitters, give it a 50% chance to do so.
+				int section = 0;
+
+				// Find and add a random section to the connector. (If the section can generate splitters, give it a 50% chance to do so).
 				if (CanGenerateSplitters == true && Random.Range (0, 2) == 0)
 				{
-					if (i > 0)
+					// If splitters can be generated, and the 50% chance has been achieved, and the previous section's previous section isn't a splitter, then give an extra 25% chance to create a special section.
+					if (PreviousSection != null && PreviousSection.IsSplitterSection == false && Random.Range (0, 1) == 0)
 					{
-						// Determine which direction to stop sections being generated in.
-						if (Connectors[i].position.x > Connectors[i - 1].position.x)
-						{
-							if (Connectors[i - 1].name == "Section_Right(Clone)" || Connectors[i - 1].name == "Section_Line(Clone)")
-								nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(1, gameManager.SplitterSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
-						}
-						else
-						{
-							if (Connectors[i - 1].name == "Section_Left(Clone)" || Connectors[i - 1].name == "Section_Line(Clone)")
-								nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(0, gameManager.SplitterSections.Length - 1)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
-						}
+						Debug.Log (PreviousSection.name);
+						nextSections[i] = ((GameObject)Instantiate(gameManager.SpecialSections[section = Random.Range(0, gameManager.SpecialSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+						nextSections[i].CanGenerateSplitters = false;	// Prevent the next section from creating splitters and special sections.
 					}
-
-					nextSections[i] = ((GameObject)Instantiate(gameManager.SplitterSections[Random.Range(0, gameManager.SplitterSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+					else
+					{
+						nextSections[i] = ((GameObject)Instantiate(gameManager.SplitterSections[section = (SectionIndex + Random.Range(1, gameManager.SplitterSections.Length - 2)) % gameManager.SplitterSections.Length], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+						nextSections[i].IsSplitterSection = true;
+					}
 				}
 				else
 				{
-					nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[Random.Range(0, gameManager.Sections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+					if (i > 0)
+					{
+						if (Connectors[i - 1].position.x < Connectors[i].position.x && nextSections[i - 1].name != "Section_Left(Clone)")
+						{
+							nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[section = 2], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+						}
+						else if (Connectors[i - 1].position.x > Connectors[i].position.x && nextSections[i - 1].name != "Section_Right(Clone)")
+						{
+							nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[section = 0], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+						}
+						else
+						{
+							nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[section = 1], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+						}
+					}
+					else
+					{
+						nextSections[i] = ((GameObject)Instantiate(gameManager.Sections[section = (SectionIndex + Random.Range(1, gameManager.Sections.Length - 1)) % gameManager.Sections.Length], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
+					}
 				}
+
+				nextSections[i].SectionIndex = section;
 
 				// Generate rocks for the next section.
 				//nextSections[i].GenerateRocks(10);
 				StartCoroutine(GenerateRocks(10));
 
 				//nextSections[i].GenerateAnimals(20, 4, 3, 10);
-				StartCoroutine(GenerateAnimals(20, 4, 3, 10));
+				StartCoroutine(GenerateAnimals(5, 5, 3, 10));
 
 				// Set the previous section of the next section to this section.
 				nextSections[i].PreviousSection = this;
@@ -117,6 +164,13 @@ public class scrSection : MonoBehaviour
 		while (palms.Count > 0 && treeBirds > 0)
 		{
 			int i = Random.Range (0, palms.Count);
+
+			if (palms[i] == null)
+			{
+				palms.RemoveAt (i);
+				continue;
+			}
+
 			Transform replacement = ((GameObject)Instantiate (gameManager.PopulatedPalmPrefab, palms[i].position, palms[i].rotation)).transform;
 			replacement.parent = palms[i].parent;
 			foreach (scrBirdSitting bird in replacement.GetComponentsInChildren<scrBirdSitting>())
@@ -125,7 +179,7 @@ public class scrSection : MonoBehaviour
 				nativeAnimals.Add(bird.transform);
 			}
 			//replacement.DetachChildren();
-			Destroy(palms[i].gameObject);
+			Destroy (palms[i].gameObject);
 			palms.RemoveAt(i);
 			--treeBirds;
 
@@ -133,16 +187,56 @@ public class scrSection : MonoBehaviour
 		}
 		#endregion
 
-		#region Overhead Birds
-		for (int i = 0; i < overheadBirds; i++)
+		#region Huts
+		// Check for huts.
+		Transform hutGroup = this.transform.Find("Huts");
+
+		// Check for unflippable huts.
+		if (hutGroup == null)
+			hutGroup = this.transform.Find ("Huts_Noflip");
+
+		if (hutGroup != null)
 		{
-			// Instantiate a flying bird at a random position after the end of the section.
-			Rigidbody bird = ((GameObject)Instantiate (gameManager.BirdFlyingPrefab, this.transform.position + new Vector3(Random.Range (-60f, 60f), Random.Range (25f, 40f), 400 + Random.Range (0f, 800f)), Quaternion.Euler(0, 180, 0))).rigidbody;
+			// 50% chance for huts to be on either side.
+			if (hutGroup.name != "Huts_Noflip" && Random.Range (0, 2) == 0)
+				hutGroup.localScale = new Vector3(-hutGroup.localScale.x, hutGroup.localScale.y, hutGroup.localScale.z);
+			
+			while (hutHooks.Count > 0 && huts > 0)
+			{
+				int i = Random.Range (0, hutHooks.Count);
 
-			// Give the bird force to make it move in the opposite direction to the general direction of the player.
-			bird.AddForce(0, 0, -600);
+				// I have ABSOLUTELY NO IDEA why this happens: Even though I only remove the hut hooks that I add huts to, they still get included in the search.
+				if (hutHooks[i] == null || hutHooks[i].Find ("Hut_A(Clone)") || hutHooks[i].Find ("Hut_B(Clone)") || hutHooks[i].Find ("Raft(Clone)"))
+				{
+					hutHooks.RemoveAt (i);
+					continue;
+				}
 
-			yield return new WaitForSeconds(0.1f);;
+				Transform replacement;
+				if (Random.Range (0, 2) == 0)
+				{
+					replacement = ((GameObject)Instantiate (gameManager.HutAPrefab, hutHooks[i].position + Vector3.up * Random.Range (2f, 3f), Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;				
+				}
+				else
+				{
+					replacement = ((GameObject)Instantiate (gameManager.HutBPrefab, hutHooks[i].position + Vector3.up * Random.Range (2f, 3f), Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;	
+				}
+				
+				nativeAnimals.Add(replacement);
+				Destroy(hutHooks[i].gameObject);
+				hutHooks.RemoveAt(i);
+				--huts;
+				
+				// 90% chance to have a native in the hut.
+				if (Random.Range (0, 10) < 9)
+				{
+					Transform native = ((GameObject)Instantiate (gameManager.NativePrefab, replacement.transform.position + Vector3.up * 3f, Quaternion.identity)).transform;
+					native.parent = replacement;
+					nativeAnimals.Add (native);
+				}
+				
+				yield return new WaitForSeconds(0.1f);;
+			}
 		}
 		#endregion
 
@@ -151,7 +245,7 @@ public class scrSection : MonoBehaviour
 		{
 			int i = Random.Range (0, animalHooks.Count);
 			Transform replacement = ((GameObject)Instantiate (gameManager.ElephantPrefab, animalHooks[i].position + animalHooks[i].forward + Vector3.up * 0.05f, animalHooks[i].rotation)).transform;
-
+			
 			// Choose whether to put a tree in front of the elephant.
 			if (Random.Range(0, 2) == 0)
 			{
@@ -160,45 +254,35 @@ public class scrSection : MonoBehaviour
 				replacement.Translate (0, 0, -12, Space.Self);
 				replacement.GetComponent<scrElephantStanding>().TreeToPush = fallingLog;
 			}
-		
+			
 			nativeAnimals.Add(replacement);
 			Destroy(animalHooks[i].gameObject);
 			animalHooks.RemoveAt(i);
 			--elephants;
-
+			
 			yield return new WaitForSeconds(0.1f);;
 		}
 		#endregion
 
-		#region Huts
-		Transform hutGroup = this.transform.FindChild("Huts");
-		if (hutGroup != null)
+		#region Overhead Birds
+		for (int i = 0; i < overheadBirds; i++)
 		{
-			// 50% chance for huts to be on either side.
-			if (Random.Range (0, 2) == 0)
-				hutGroup.localScale = new Vector3(-hutGroup.localScale.x, hutGroup.localScale.y, hutGroup.localScale.z);
+			// Instantiate a flying bird at a random position after the end of the section.
+			Rigidbody bird = ((GameObject)Instantiate (gameManager.BirdFlyingPrefab, this.transform.position + new Vector3(Random.Range (-100f, 100f), Random.Range (25f, 100f), 400 + Random.Range (0f, 800f)), Quaternion.Euler(0, 180, 0))).rigidbody;
 
-			while (hutHooks.Count > 0 && huts > 0)
-			{
-				int i = Random.Range (0, hutHooks.Count);
-				Transform replacement = ((GameObject)Instantiate ((Random.Range (0, 2) == 0 ? gameManager.HutAPrefab : gameManager.HutBPrefab), hutHooks[i].position + Vector3.up * Random.Range (3, 5), Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;				
-				nativeAnimals.Add(replacement);
-				Destroy(hutHooks[i].gameObject);
-				hutHooks.RemoveAt(i);
-				--huts;
+			// Give the bird force to make it move in the opposite direction to the general direction of the player.
+			bird.AddForce(0, 0, -600);
 
-				// 50% chance to have a native in the hut.
-				if (Random.Range (0, 2) == 0)
-					Instantiate (gameManager.NativePrefab, replacement.transform.position + Vector3.up * 2f, Quaternion.identity);
-
-				yield return new WaitForSeconds(0.1f);;
-			}
+			yield return new WaitForSeconds(0.1f);;
 		}
 		#endregion
 	}
 
 	public IEnumerator GenerateRocks(int numRocks)
 	{
+		if (IsSplitterSection == true && gameManager.SplitterSections[SectionIndex].name.Contains ("Huts") ||
+		    IsSplitterSection == false && gameManager.Sections[SectionIndex].name.Contains ("Huts")) yield break;
+
 		// Get all children of this object.
 		Transform[] children = gameObject.GetComponentsInChildren<Transform>();
 		List<Transform> waters = new List<Transform>();

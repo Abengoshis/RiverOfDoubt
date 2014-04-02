@@ -51,7 +51,7 @@ public class scrBirdSitting : scrAnimal
 		replacement.rigidbody.velocity = direction * 20;
 	}
 
-	protected override void Kill ()
+	public override void Kill ()
 	{
 		// Explode into a plume of feathers.
 		// Explode into a plume of feathers.

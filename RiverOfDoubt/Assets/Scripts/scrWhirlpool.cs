@@ -31,7 +31,7 @@ public class scrWhirlpool : MonoBehaviour
 	{
 		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle") && other.name != "Log(Clone)")
 		{
-			Destroy(other.gameObject);
+			Destroy(other.transform.root.gameObject);
 		}
 	}
 }

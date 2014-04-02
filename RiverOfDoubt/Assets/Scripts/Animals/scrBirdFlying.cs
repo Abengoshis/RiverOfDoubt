@@ -47,7 +47,7 @@ public class scrBirdFlying : scrAnimal
 		base.Update();
 	}
 
-	protected override void Kill ()
+	public override void Kill ()
 	{
 		// Explode into a plume of feathers.
 		for (int i = 0; i < 32; i++)

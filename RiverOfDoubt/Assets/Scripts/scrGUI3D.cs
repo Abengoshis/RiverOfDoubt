@@ -169,7 +169,7 @@ public class scrGUI3D : MonoBehaviour
 		if (overlayTimer >= overlayDelay)
 			overlayTimer = overlayDelay;
 
-		RenderSettings.fogEndDistance = Mathf.SmoothStep (800, 2, overlayTimer / overlayDelay);
+		RenderSettings.fogEndDistance = Mathf.SmoothStep (1000, 2, overlayTimer / overlayDelay);
 		RenderSettings.fogColor = new Color(0.36f, 0.42f, 0.38f);
 		Camera.main.clearFlags = CameraClearFlags.SolidColor;
 
@@ -187,7 +187,7 @@ public class scrGUI3D : MonoBehaviour
 			RenderSettings.fogColor = defaultFogColour;
 		}
 
-		RenderSettings.fogEndDistance = Mathf.Lerp (800, 2, overlayTimer / overlayDelay);
+		RenderSettings.fogEndDistance = Mathf.Lerp (1000, 2, overlayTimer / overlayDelay);
 		Camera.main.clearFlags = CameraClearFlags.Skybox;
 
 		Color temp = overlay.renderer.material.color;

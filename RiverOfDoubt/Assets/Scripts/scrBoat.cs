@@ -4,6 +4,7 @@ using System.Collections;
 public class scrBoat : MonoBehaviour
 {
 	public GameObject BigSplashPrefab;
+	public GameObject SmallSplashPrefab;
 	public int Health;
 
 	private float wobble = 0;
@@ -68,22 +69,52 @@ public class scrBoat : MonoBehaviour
 				for (int i = 0; i < children.Length; i++)
 				{
 					children[i].parent = null;
-					children[i].gameObject.AddComponent<Rigidbody>();
+					if (children[i].name == "Native(Clone)")
+					{
+						children[i].GetComponent<scrNative>().Kill();
+						continue;
+					}
+				
+					if (children[i].rigidbody == null)
+					{
+						children[i].gameObject.AddComponent<Rigidbody>();
+					}
+					children[i].rigidbody.isKinematic = false;
 					children[i].rigidbody.AddTorque(Random.Range(-50, 51), Random.Range (-50, 51), Random.Range (-50, 51));
 					if (children[i].collider)
-						Destroy (children[i].collider);
-
+					{
+						foreach (Collider c in children[i].GetComponents<Collider>())
+							Destroy (c);
+					}
 					Destroy (children[i].gameObject, 3);
 				}
 			}
-
-			wobbleTimer = 0;
-
-			if (other.name != "Whirlpool")
+			else if (other.transform.root.name == "Spear(Clone")
 			{
-				this.rigidbody.velocity = Vector3.zero;
-				Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
+				Health -= 1;
+			}
 
+			if (other.name != "Spear(Clone)")
+				wobbleTimer = 0;
+
+			if (other.name != "Whirlpool(Clone)")
+			{
+				if (other.name == "Log(Clone)")
+				{
+					Instantiate(BigSplashPrefab, other.transform.TransformPoint(new Vector3(0, 0.5f, 0)), BigSplashPrefab.transform.rotation);
+					Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
+					this.rigidbody.velocity = Vector3.zero;
+				}
+				else if (other.name == "Spear(Clone)")
+				{
+					Instantiate(SmallSplashPrefab, other.transform.position + other.transform.forward * 4, SmallSplashPrefab.transform.rotation);
+					this.rigidbody.velocity *= 0.5f;
+				}
+				else
+				{
+					Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
+					this.rigidbody.velocity = Vector3.zero;
+				}
 				// Make the obstacle fall.
 				if (other.transform.root.rigidbody != null)
 					other.transform.root.rigidbody.useGravity = true;
