@@ -22,6 +22,9 @@ public class scrBoat : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		if (Time.timeScale == 0)
+			return;
+
 		if (wobbleTimer < wobbleDelay)
 		{
 			wobbleTimer += Time.deltaTime;

@@ -60,20 +60,53 @@ public class scrGUI3D : MonoBehaviour
 	public AudioClip AudioCollect;
 	public GameObject CollectionTextPrefab;
 
+	private static bool paused = false;
+	private GameObject inventory;
+
 	// Use this for initialization
 	void Start ()
 	{
 		instance = this;
-		gunCamera = Camera.main.transform.FindChild("Gun Camera").camera;
-		overlay = this.transform.FindChild("Overlay");
-		chestLid = this.transform.FindChild("Chest").FindChild("Lid");
+		gunCamera = Camera.main.transform.Find("Gun Camera").camera;
+		overlay = this.transform.Find("Overlay");
+		chestLid = this.transform.Find("Chest").FindChild("Lid");
 		collectionPoint = this.transform.TransformPoint(collectionPoint);
 		defaultFogColour = RenderSettings.fogColor;
+		inventory = this.transform.Find ("Inventory").gameObject;
+		inventory.SetActive(false);
 	}
-	
+
 	// Update is called once per frame
 	void Update ()
 	{
+
+		if (paused == true)
+		{
+			Time.timeScale = 0;
+
+			if (Input.GetKeyDown (KeyCode.Escape) || inventory == true && Input.GetKeyDown (KeyCode.E) == true)
+			{
+				paused = false;
+				inventory.gameObject.SetActive(false);
+				Time.timeScale = 1;
+			}
+		}
+		else
+		{
+			if (Input.GetKeyDown(KeyCode.E) == true)
+			{
+				paused = true;
+				inventory.gameObject.SetActive(true);
+				Time.timeScale = 0;
+			}
+			else if (Input.GetKeyDown(KeyCode.Escape) == true)
+			{
+				paused = true;
+				Time.timeScale = 0;
+			}
+
+		}
+
 		// Whether to show the gun camera or not depends on whether the reticle is visible.
 		gunCamera.enabled = ReticleIsVisible;
 
@@ -124,6 +157,12 @@ public class scrGUI3D : MonoBehaviour
 			if (chestTimer >= chestDelay)
 				chestTimer = chestDelay;
 		}
+		else if (paused == true)
+		{
+			chestTimer += 0.01f;
+			if (chestTimer >= chestDelay)
+				chestTimer = chestDelay;
+		}
 		else
 		{
 			chestTimer -= Time.deltaTime;
@@ -137,7 +176,7 @@ public class scrGUI3D : MonoBehaviour
 
 	void OnGUI()
 	{
-		if (ReticleIsVisible == true)
+		if (inventory.activeSelf == false && ReticleIsVisible == true)
 			GUI.DrawTextureWithTexCoords(reticleDestination, ReticleTexture, reticleSource);
 	}
 
@@ -161,6 +200,7 @@ public class scrGUI3D : MonoBehaviour
 		instance.audio.PlayOneShot(instance.AudioCollect);
 
 		++collectedParts[(int)part];
+		instance.inventory.transform.Find ("Item" + (int)part + " Count").GetComponent<TextMesh>().text = collectedParts[(int)part].ToString();
 	}
 
 	public static void TransitionOverlayIn()

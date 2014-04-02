@@ -18,6 +18,9 @@ public class scrDespawn : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		if (Time.timeScale == 0)
+			return;
+
 		if (this.transform.position.y < -10)
 			Destroy (this.gameObject);
 		else

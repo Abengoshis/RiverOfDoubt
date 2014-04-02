@@ -13,6 +13,9 @@ public class scrDespawnParticleSystem : MonoBehaviour
 
 	void Update ()
 	{
+		if (Time.timeScale == 0)
+			return;
+
 		if (system.IsAlive() == false)
 			Destroy (this.gameObject);
 	}

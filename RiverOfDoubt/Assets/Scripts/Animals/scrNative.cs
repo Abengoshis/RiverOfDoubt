@@ -19,6 +19,9 @@ public class scrNative : scrAnimal
 	// Update is called once per frame
 	protected override void Update ()
 	{
+		if (Time.timeScale == 0)
+			return;
+
 		if (Health > 0)
 		{
 			this.transform.eulerAngles = new Vector3(0, this.transform.eulerAngles.y, this.transform.eulerAngles.z);

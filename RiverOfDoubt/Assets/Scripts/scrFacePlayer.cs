@@ -14,6 +14,9 @@ public class scrFacePlayer : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		if (Time.timeScale == 0)
+			return;
+
 		// Yaw to face the player.
 		Vector3 originalAngles = this.transform.eulerAngles;
 		this.transform.LookAt(player.transform.position);

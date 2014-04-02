@@ -35,6 +35,9 @@ public class MouseLook : MonoBehaviour {
 
 	void Update ()
 	{
+		if (Time.timeScale == 0)
+			return;
+
 		if (axes == RotationAxes.MouseXAndY)
 		{
 

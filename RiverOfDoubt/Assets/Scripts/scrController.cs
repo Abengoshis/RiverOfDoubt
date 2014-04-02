@@ -49,6 +49,9 @@ public class scrController : MonoBehaviour
 		if (Input.GetKey (KeyCode.F5))
 			Application.LoadLevel (0);
 
+		if (Time.timeScale == 0)
+			return;
+
 		// Run the switch timer backwards for player control and forwards for boat control.
 		if (PlayerIsFocus == true)
 		{

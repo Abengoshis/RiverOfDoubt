@@ -21,6 +21,9 @@ public class scrAnimal : MonoBehaviour
 	// Update is called once per frame
 	protected virtual void Update ()
 	{
+		if (Time.timeScale == 0)
+			return;
+
 		if (Health <= 0)
 		{
 			// Fade the animal over time.
