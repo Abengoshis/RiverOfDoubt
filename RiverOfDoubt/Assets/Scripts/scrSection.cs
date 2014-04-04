@@ -120,10 +120,12 @@ public class scrSection : MonoBehaviour
 
 				// Generate rocks for the next section.
 				//nextSections[i].GenerateRocks(10);
-				StartCoroutine(GenerateRocks(10));
+				if (rocks == null)
+					StartCoroutine(GenerateRocks(10));
 
 				//nextSections[i].GenerateAnimals(20, 4, 3, 10);
-				StartCoroutine(GenerateAnimals(5, 5, 3, 10));
+				if (nativeAnimals.Count == 0)
+					StartCoroutine(GenerateAnimals(5, 5, 3, 10, Random.Range (0, 3) == 0));
 
 				// Set the previous section of the next section to this section.
 				nextSections[i].PreviousSection = this;
@@ -142,7 +144,7 @@ public class scrSection : MonoBehaviour
 		}
 	}
 
-	public IEnumerator GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int huts)
+	public IEnumerator GenerateAnimals(int treeBirds, int overheadBirds, int elephants, int huts, bool crocodileHutOverride)
 	{
 		Transform[] parts = this.transform.GetComponentsInChildren<Transform>();
 
@@ -165,11 +167,11 @@ public class scrSection : MonoBehaviour
 		{
 			int i = Random.Range (0, palms.Count);
 
-			if (palms[i] == null)
-			{
-				palms.RemoveAt (i);
-				continue;
-			}
+//			if (palms[i] == null)
+//			{
+//				palms.RemoveAt (i);
+//				continue;
+//			}
 
 			Transform replacement = ((GameObject)Instantiate (gameManager.PopulatedPalmPrefab, palms[i].position, palms[i].rotation)).transform;
 			replacement.parent = palms[i].parent;
@@ -184,59 +186,6 @@ public class scrSection : MonoBehaviour
 			--treeBirds;
 
 			yield return new WaitForSeconds(0.1f);
-		}
-		#endregion
-
-		#region Huts
-		// Check for huts.
-		Transform hutGroup = this.transform.Find("Huts");
-
-		// Check for unflippable huts.
-		if (hutGroup == null)
-			hutGroup = this.transform.Find ("Huts_Noflip");
-
-		if (hutGroup != null)
-		{
-			// 50% chance for huts to be on either side.
-			if (hutGroup.name != "Huts_Noflip" && Random.Range (0, 2) == 0)
-				hutGroup.localScale = new Vector3(-hutGroup.localScale.x, hutGroup.localScale.y, hutGroup.localScale.z);
-			
-			while (hutHooks.Count > 0 && huts > 0)
-			{
-				int i = Random.Range (0, hutHooks.Count);
-
-				// I have ABSOLUTELY NO IDEA why this happens: Even though I only remove the hut hooks that I add huts to, they still get included in the search.
-				if (hutHooks[i] == null || hutHooks[i].Find ("Hut_A(Clone)") || hutHooks[i].Find ("Hut_B(Clone)") || hutHooks[i].Find ("Raft(Clone)"))
-				{
-					hutHooks.RemoveAt (i);
-					continue;
-				}
-
-				Transform replacement;
-				if (Random.Range (0, 2) == 0)
-				{
-					replacement = ((GameObject)Instantiate (gameManager.HutAPrefab, hutHooks[i].position + Vector3.up * Random.Range (2f, 3f), Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;				
-				}
-				else
-				{
-					replacement = ((GameObject)Instantiate (gameManager.HutBPrefab, hutHooks[i].position + Vector3.up * Random.Range (2f, 3f), Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;	
-				}
-				
-				nativeAnimals.Add(replacement);
-				Destroy(hutHooks[i].gameObject);
-				hutHooks.RemoveAt(i);
-				--huts;
-				
-				// 90% chance to have a native in the hut.
-				if (Random.Range (0, 10) < 9)
-				{
-					Transform native = ((GameObject)Instantiate (gameManager.NativePrefab, replacement.transform.position + Vector3.up * 3f, Quaternion.identity)).transform;
-					native.parent = replacement;
-					nativeAnimals.Add (native);
-				}
-				
-				yield return new WaitForSeconds(0.1f);;
-			}
 		}
 		#endregion
 
@@ -261,6 +210,69 @@ public class scrSection : MonoBehaviour
 			--elephants;
 			
 			yield return new WaitForSeconds(0.1f);;
+		}
+		#endregion
+
+		#region Huts (or whatever has overrided the huts)
+		// Check for huts.
+		Transform hutGroup = this.transform.Find("Huts");
+
+		// Check for unflippable huts.
+		if (hutGroup == null)
+			hutGroup = this.transform.Find ("Huts_Noflip");
+
+		if (hutGroup != null)
+		{
+			// 50% chance for huts to be on either side.
+			if (hutGroup.name != "Huts_Noflip" && Random.Range (0, 2) == 0)
+				hutGroup.localScale = new Vector3(-hutGroup.localScale.x, hutGroup.localScale.y, hutGroup.localScale.z);
+			
+			while (hutHooks.Count > 0 && huts > 0)
+			{
+				int i = Random.Range (0, hutHooks.Count);
+
+//				// I have ABSOLUTELY NO IDEA why this happens: Even though I only remove the hut hooks that I add huts to, they still get included in the search.
+//				if (hutHooks[i] == null || hutHooks[i].Find ("Hut_A(Clone)") || hutHooks[i].Find ("Hut_B(Clone)") || hutHooks[i].Find ("Raft(Clone)"))
+//				{
+//					hutHooks.RemoveAt (i);
+//					continue;
+//				}
+
+				Transform replacement;
+
+				// Normal huts.
+				if (crocodileHutOverride == false)
+				{
+					if (Random.Range (0, 2) == 0)
+					{
+						replacement = ((GameObject)Instantiate (gameManager.HutAPrefab, hutHooks[i].position + Vector3.up * Random.Range (2f, 3f), Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;				
+					}
+					else
+					{
+						replacement = ((GameObject)Instantiate (gameManager.HutBPrefab, hutHooks[i].position + Vector3.up * Random.Range (2f, 3f), Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;	
+					}
+					
+					// 90% chance to have a native in the hut.
+					if (Random.Range (0, 10) < 9)
+					{
+						Transform native = ((GameObject)Instantiate (gameManager.NativePrefab, replacement.transform.position + Vector3.up * 3f, Quaternion.identity)).transform;
+						native.parent = replacement;
+						nativeAnimals.Add (native);
+					}
+				}
+				else
+				{
+					// Spawn a crocodile instead of a hut. This varies hut sections a little more.
+					replacement = ((GameObject)Instantiate (gameManager.CrocodilePrefab, hutHooks[i].position, Quaternion.Euler(0, Random.Range (0, 360), 0))).transform;	
+				}
+
+				nativeAnimals.Add(replacement);
+				Destroy(hutHooks[i].gameObject);
+				hutHooks.RemoveAt(i);
+				--huts;
+				
+				yield return new WaitForSeconds(0.1f);;
+			}
 		}
 		#endregion
 

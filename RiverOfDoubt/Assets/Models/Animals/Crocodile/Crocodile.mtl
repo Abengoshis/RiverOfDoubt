@@ -1,0 +1,46 @@
+# Exported from Wings 3D 1.5.2
+newmtl Eye
+Ns 100.0
+d 1.0
+illum 2
+Kd 0.68 0.64 0.24
+Ka 0.0 0.0 0.0
+Ks 0.0 0.0 0.0
+Ke 0.0 0.0 0.0
+
+newmtl Jaw
+Ns 100.0
+d 1.0
+illum 2
+Kd 0.44 0.136 0.136
+Ka 0.0 0.0 0.0
+Ks 0.0 0.0 0.0
+Ke 0.0 0.0 0.0
+
+newmtl Pupil
+Ns 100.0
+d 1.0
+illum 2
+Kd 0.0 0.0 0.0
+Ka 0.0 0.0 0.0
+Ks 1.0 1.0 1.0
+Ke 0.0 0.0 0.0
+
+newmtl Teeth
+Ns 100.0
+d 1.0
+illum 2
+Kd 0.8 0.8 0.56
+Ka 0.0 0.0 0.0
+Ks 0.0 0.0 0.0
+Ke 0.0 0.0 0.0
+
+newmtl default
+Ns 0.0
+d 1.0
+illum 2
+Kd 0.44 0.44 0.0
+Ka 0.44 0.44 0.0
+Ks 0.0 0.0 0.0
+Ke 0.0 0.0 0.0
+

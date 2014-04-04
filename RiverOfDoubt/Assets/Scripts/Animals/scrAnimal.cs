@@ -97,7 +97,7 @@ public class scrAnimal : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
-		if (other.gameObject.layer == LayerMask.NameToLayer("Water"))
+		if (Health <= 0 && other.gameObject.layer == LayerMask.NameToLayer("Water"))
 			Instantiate (SplashEffect, this.transform.position, Quaternion.identity);
 	}
 }

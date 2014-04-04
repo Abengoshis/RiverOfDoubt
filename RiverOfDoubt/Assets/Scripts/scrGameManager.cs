@@ -12,6 +12,7 @@ public class scrGameManager : MonoBehaviour
 	public GameObject BirdFlyingPrefab;
 	public GameObject ElephantPrefab, FallingLogPrefab;
 	public GameObject HutAPrefab, HutBPrefab, NativePrefab;
+	public GameObject CrocodilePrefab;
 
 	// Use this for initialization
 	void Start ()

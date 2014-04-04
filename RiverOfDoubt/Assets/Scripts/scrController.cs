@@ -46,6 +46,12 @@ public class scrController : MonoBehaviour
 
 	void Update ()
 	{
+		// DEBUG
+		if (Input.GetKey(KeyCode.B))
+			BoatSpeed = 50;
+		else
+			BoatSpeed = 10;
+
 		if (Input.GetKey (KeyCode.F5))
 			Application.LoadLevel (0);
 
@@ -65,7 +71,7 @@ public class scrController : MonoBehaviour
 			CheckGunFire(lookRay);
 
 			// Check if the player is looking at the door.
-			if (Physics.Raycast(lookRay, out hit, 2, 1 << LayerMask.NameToLayer("Interactive")))
+			if (Physics.Raycast(lookRay, out hit, 2.5f, 1 << LayerMask.NameToLayer("Interactive")))
 			{
 				if (hit.collider.name == "LeftDoor" || hit.collider.name == "RightDoor")
 				{
@@ -85,6 +91,15 @@ public class scrController : MonoBehaviour
 					// Light up the door to show you can click it. L4D2 style borders?
 					Debug.Log ("Looking at the door!");
 				}
+				else if (hit.collider.name == "Chest")
+				{
+					if (Input.GetButtonDown("Interact") == true)
+					{
+						scrGUI3D.OpenInventory();
+					}
+				}
+
+				// Set the material to an outline.
 
 				Debug.Log (hit.transform.name);
 			}
@@ -234,8 +249,6 @@ public class scrController : MonoBehaviour
 		// Check if the player wants to shoot.	// HAVE A LIST OF WEAPONS WITH RECOIL VALUES, DAMAGE, MODEL ETC.
 		if (Input.GetAxis("Fire") > 0)
 		{
-			Screen.lockCursor = true;
-
 			// Don't allow the player to hold down fire, and don't allow shooting while the recoil timer is running.
 			if (firePressed == false && recoilTimer == -1 && Weapons[Gun].Ammo != 0 && AudioShoot.isPlaying == false)
 			{

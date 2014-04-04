@@ -3,9 +3,11 @@ using System.Collections;
 
 public class scrBoat : MonoBehaviour
 {
+	public static float Health { get; private set; }
+	public const int HEALTH_MAX = 100;
+
 	public GameObject BigSplashPrefab;
 	public GameObject SmallSplashPrefab;
-	public int Health;
 
 	private float wobble = 0;
 	private float wobbleDelay = 3;
@@ -17,6 +19,7 @@ public class scrBoat : MonoBehaviour
 	{
 		wobbleTimer = wobbleDelay;
 		boatHolder = this.transform.FindChild("BoatHolder");
+		Health = HEALTH_MAX;
 	}
 	
 	// Update is called once per frame
@@ -37,6 +40,35 @@ public class scrBoat : MonoBehaviour
 		}
 	}
 
+	void OnCollisionEnter(Collision collision)
+	{
+		if (collision.gameObject.layer == LayerMask.NameToLayer("Animal"))
+		{
+			if (collision.transform.root.name == "Crocodile(Clone)")
+			{
+				Instantiate(SmallSplashPrefab, collision.transform.Find ("Croc").Find ("Head").position, SmallSplashPrefab.transform.rotation);
+				Health -= 10;
+			}
+		}
+	}
+
+	void OnCollisionStay(Collision collision)
+	{
+		// Check whether the boat has collided with a part of the section.
+		if (collision.transform.root.name.Contains ("Section"))
+		{
+			// Find how much damage to do by comparing the angle between the forward vector of the boat and the direction to the contact point.
+			float damage = 180 - Vector3.Angle(this.transform.forward, collision.contacts[0].point - this.transform.position);
+
+			Debug.Log (damage);
+
+			// Deal damage over time.
+			Health -= damage * 0.05f * Time.deltaTime;
+
+			// Make a crunch noise.
+		}
+	}
+
 	void OnTriggerEnter(Collider other)
 	{
 		if (other.tag == "Section")
@@ -53,19 +85,19 @@ public class scrBoat : MonoBehaviour
 		{
 			if (other.transform.root.name == "SmallRock(Clone)")
 			{
-				Health -= 1;
+				Health -= 5;
 			}
 			else if (other.transform.root.name == "MediumRock(Clone)")
 			{
-				Health -= 2;
+				Health -= 10;
 			}
 			else if (other.transform.root.name == "LargeRock(Clone)")
 			{
-				Health -= 3;
+				Health -= 15;
 			}
 			else if (other.transform.root.name == "Hut_A(Clone)" || other.transform.root.name == "Hut_B(Clone)")
 			{
-				Health -= 2;
+				Health -= 10;
 
 				// Detach all children and give them rigidbodies and torque. Destroy them after 3 seconds.
 				Transform[] children = other.transform.root.GetComponentsInChildren<Transform>();
@@ -92,10 +124,6 @@ public class scrBoat : MonoBehaviour
 					Destroy (children[i].gameObject, 3);
 				}
 			}
-			else if (other.transform.root.name == "Spear(Clone")
-			{
-				Health -= 1;
-			}
 
 			if (other.name != "Spear(Clone)")
 				wobbleTimer = 0;
@@ -107,11 +135,13 @@ public class scrBoat : MonoBehaviour
 					Instantiate(BigSplashPrefab, other.transform.TransformPoint(new Vector3(0, 0.5f, 0)), BigSplashPrefab.transform.rotation);
 					Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
 					this.rigidbody.velocity = Vector3.zero;
+					Health -= 15;
 				}
 				else if (other.name == "Spear(Clone)")
 				{
 					Instantiate(SmallSplashPrefab, other.transform.position + other.transform.forward * 4, SmallSplashPrefab.transform.rotation);
 					this.rigidbody.velocity *= 0.5f;
+					Health -= 2;
 				}
 				else
 				{

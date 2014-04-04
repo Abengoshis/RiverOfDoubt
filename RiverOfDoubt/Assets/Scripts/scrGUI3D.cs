@@ -60,8 +60,15 @@ public class scrGUI3D : MonoBehaviour
 	public AudioClip AudioCollect;
 	public GameObject CollectionTextPrefab;
 
-	private static bool paused = false;
-	private GameObject inventory;
+	private static bool openInventoryFudge = false;
+	private static GameObject inventory;
+	private static GameObject pause;
+	private static Transform healthBar;
+
+	public static void OpenInventory()
+	{
+		openInventoryFudge = true;
+	}
 
 	// Use this for initialization
 	void Start ()
@@ -74,37 +81,44 @@ public class scrGUI3D : MonoBehaviour
 		defaultFogColour = RenderSettings.fogColor;
 		inventory = this.transform.Find ("Inventory").gameObject;
 		inventory.SetActive(false);
+		pause = this.transform.Find ("Pause").gameObject;
+		pause.SetActive(false);
+		healthBar = this.transform.Find ("Health").Find ("Bar").transform;
 	}
 
 	// Update is called once per frame
 	void Update ()
 	{
-
-		if (paused == true)
+		if (pause.activeSelf == true)
 		{
 			Time.timeScale = 0;
 
-			if (Input.GetKeyDown (KeyCode.Escape) || inventory == true && Input.GetKeyDown (KeyCode.E) == true)
+			// Check for exiting the inventory as well as the pause meny.
+			if (Input.GetKeyDown (KeyCode.Escape) || inventory.activeSelf == true && Input.GetButtonDown("Interact") == true)
 			{
-				paused = false;
-				inventory.gameObject.SetActive(false);
+				inventory.SetActive(false);
+				pause.SetActive(false);
+				Screen.lockCursor = true;
 				Time.timeScale = 1;
 			}
 		}
 		else
 		{
-			if (Input.GetKeyDown(KeyCode.E) == true)
+			if (Input.GetKeyDown(KeyCode.Escape) == true)
 			{
-				paused = true;
-				inventory.gameObject.SetActive(true);
-				Time.timeScale = 0;
-			}
-			else if (Input.GetKeyDown(KeyCode.Escape) == true)
-			{
-				paused = true;
+				pause.SetActive(true);
+				Screen.lockCursor = false;
 				Time.timeScale = 0;
 			}
 
+			if (openInventoryFudge == true)
+			{
+				inventory.SetActive(true);
+				pause.SetActive(true);
+				Screen.lockCursor = false;
+				Time.timeScale = 0;
+				openInventoryFudge = false;
+			}
 		}
 
 		// Whether to show the gun camera or not depends on whether the reticle is visible.
@@ -143,6 +157,7 @@ public class scrGUI3D : MonoBehaviour
 				}
 
 				// Smoothstep lerp the collectable towards the collection point.
+
 				collectionItems[i].transform.position = Vector3.Lerp(collectionItems[i].InitialPosition, collectionPoint, Mathf.SmoothStep(0f, 1f, collectionItems[i].TimerProgress));
 
 				// Rotate the collectable.
@@ -157,7 +172,7 @@ public class scrGUI3D : MonoBehaviour
 			if (chestTimer >= chestDelay)
 				chestTimer = chestDelay;
 		}
-		else if (paused == true)
+		else if (inventory.activeSelf == true)
 		{
 			chestTimer += 0.01f;
 			if (chestTimer >= chestDelay)
@@ -172,6 +187,11 @@ public class scrGUI3D : MonoBehaviour
 
 		// Rotate the chest lid with the chest timer.
 		chestLid.localEulerAngles = new Vector3(-60 * Mathf.SmoothStep(chestTimer, chestDelay, chestTimer / chestDelay), 0, 0);
+
+		// Make the healthbar's height correlate to the player's health.
+		healthBar.localScale = Vector3.Lerp (healthBar.localScale, new Vector3(healthBar.localScale.x, 0.95f * scrBoat.Health / scrBoat.HEALTH_MAX, healthBar.localScale.z), 0.1f);
+		healthBar.transform.localPosition = Vector3.Lerp (healthBar.transform.localPosition, new Vector3(healthBar.localPosition.x, scrBoat.Health / scrBoat.HEALTH_MAX - 1, healthBar.localPosition.z), 0.1f);
+		healthBar.renderer.material.color = Color.Lerp (new Color(1.0f, 0.01f, 0.0f, 0.8f), new Color(0.35f, 1.0f, 0.0f, 0.8f), healthBar.localPosition.y + 1);
 	}
 
 	void OnGUI()
@@ -200,7 +220,7 @@ public class scrGUI3D : MonoBehaviour
 		instance.audio.PlayOneShot(instance.AudioCollect);
 
 		++collectedParts[(int)part];
-		instance.inventory.transform.Find ("Item" + (int)part + " Count").GetComponent<TextMesh>().text = collectedParts[(int)part].ToString();
+		inventory.transform.Find ("Item" + (int)part + " Count").GetComponent<TextMesh>().text = collectedParts[(int)part].ToString();
 	}
 
 	public static void TransitionOverlayIn()
