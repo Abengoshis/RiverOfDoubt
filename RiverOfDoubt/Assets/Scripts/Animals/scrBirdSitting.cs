@@ -70,7 +70,7 @@ public class scrBirdSitting : scrAnimal
 		this.rigidbody.AddTorque(Random.Range (-100, 101), Random.Range (-100, 101), Random.Range (-100, 101));
 
 		// Collect a feather.
-		scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 1f, scrGUI3D.Parts.Feather);
+		scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 1f);
 
 		base.Kill ();
 	}

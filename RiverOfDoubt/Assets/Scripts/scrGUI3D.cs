@@ -49,9 +49,8 @@ public class scrGUI3D : MonoBehaviour
 	private static Transform chestLid;
 	private static float chestTimer = 0;
 	private static float chestDelay = 0.5f;
-
-	public enum Parts { Feather, Tusk, Mask }
-	private static int[] collectedParts = new int[3];
+	
+	private static int[] collectedParts = new int[4];
 
 	private static scrGUI3D instance;
 	private static Camera gunCamera;
@@ -200,7 +199,7 @@ public class scrGUI3D : MonoBehaviour
 			GUI.DrawTextureWithTexCoords(reticleDestination, ReticleTexture, reticleSource);
 	}
 
-	public static void CollectItem(GameObject itemPrefab, Vector3 worldPosition, float timeToCollect, Parts part)
+	public static void CollectItem(GameObject itemPrefab, Vector3 worldPosition, float timeToCollect)
 	{
 		// Get the screen position of the item.
 		Vector3 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
@@ -219,8 +218,25 @@ public class scrGUI3D : MonoBehaviour
 		collectionItems.Add(new Collectable(item, timeToCollect));
 		instance.audio.PlayOneShot(instance.AudioCollect);
 
-		++collectedParts[(int)part];
-		inventory.transform.Find ("Item" + (int)part + " Count").GetComponent<TextMesh>().text = collectedParts[(int)part].ToString();
+		int part = 0;
+		switch (item.name)
+		{
+		case "Feather(Clone)":
+			part = 0;
+			break;
+		case "Tusk(Clone)":
+			part = 1;
+			break;
+		case "Idol(Clone)":
+			part = 2;
+			break;
+		case "Leather(Clone)":
+			part = 3;
+			break;
+		}
+
+		++collectedParts[part];
+		inventory.transform.Find ("Item" + part + " Count").GetComponent<TextMesh>().text = collectedParts[part].ToString();
 	}
 
 	public static void TransitionOverlayIn()

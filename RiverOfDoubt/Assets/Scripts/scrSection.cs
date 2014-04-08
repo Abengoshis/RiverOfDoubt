@@ -12,6 +12,11 @@ public class scrSection : MonoBehaviour
 	}
 
 	// Properties of the section.
+	public int RocksToGenerate = 10;
+	public int TreeBirdsToGenerate = 5;
+	public int OverheadBirdsToGenerate = 5;
+	public int ElephantsToGenerate = 3;
+	public int HutsOrCrocodilesToGenerate = 5;
 	public Transform[] Connectors;
 	public bool CanGenerateSplitters;
 	public bool IsSplitterSection { get; protected set; }
@@ -81,7 +86,7 @@ public class scrSection : MonoBehaviour
 				if (CanGenerateSplitters == true && Random.Range (0, 2) == 0)
 				{
 					// If splitters can be generated, and the 50% chance has been achieved, and the previous section's previous section isn't a splitter, then give an extra 25% chance to create a special section.
-					if (PreviousSection != null && PreviousSection.IsSplitterSection == false && Random.Range (0, 1) == 0)
+					if (PreviousSection != null && PreviousSection.IsSplitterSection == false && Random.Range (0, 4) == 0)
 					{
 						Debug.Log (PreviousSection.name);
 						nextSections[i] = ((GameObject)Instantiate(gameManager.SpecialSections[section = Random.Range(0, gameManager.SpecialSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
@@ -120,12 +125,12 @@ public class scrSection : MonoBehaviour
 
 				// Generate rocks for the next section.
 				//nextSections[i].GenerateRocks(10);
-				if (rocks == null)
-					StartCoroutine(GenerateRocks(10));
+				if (rocks == null && RocksToGenerate > 0)
+					StartCoroutine(GenerateRocks(RocksToGenerate));
 
 				//nextSections[i].GenerateAnimals(20, 4, 3, 10);
 				if (nativeAnimals.Count == 0)
-					StartCoroutine(GenerateAnimals(5, 5, 3, 10, Random.Range (0, 3) == 0));
+					StartCoroutine(GenerateAnimals(TreeBirdsToGenerate, OverheadBirdsToGenerate, ElephantsToGenerate, HutsOrCrocodilesToGenerate, Random.Range (0, 3) == 0));
 
 				// Set the previous section of the next section to this section.
 				nextSections[i].PreviousSection = this;
@@ -213,7 +218,7 @@ public class scrSection : MonoBehaviour
 		}
 		#endregion
 
-		#region Huts (or whatever has overrided the huts)
+		#region Huts or Crocodiles
 		// Check for huts.
 		Transform hutGroup = this.transform.Find("Huts");
 

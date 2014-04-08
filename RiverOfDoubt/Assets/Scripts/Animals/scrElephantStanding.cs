@@ -79,7 +79,7 @@ public class scrElephantStanding : scrAnimal
 		Destroy(this.transform.FindChild("HeadPivot").GetComponent<scrFacePlayer>());
 
 		// Collect a tusks.
-		scrGUI3D.CollectItem(TuskPrefab, this.transform.position, 1f, scrGUI3D.Parts.Tusk);
+		scrGUI3D.CollectItem(TuskPrefab, this.transform.position, 1f);
 
 		base.Kill ();
 	}

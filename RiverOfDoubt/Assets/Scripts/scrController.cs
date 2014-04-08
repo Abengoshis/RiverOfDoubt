@@ -58,6 +58,8 @@ public class scrController : MonoBehaviour
 		if (Time.timeScale == 0)
 			return;
 
+		this.transform.localPosition = new Vector3(this.transform.localPosition.x, 1.6f, this.transform.localPosition.z);
+
 		// Run the switch timer backwards for player control and forwards for boat control.
 		if (PlayerIsFocus == true)
 		{
@@ -151,9 +153,9 @@ public class scrController : MonoBehaviour
 		}
 
 		// Make sure the boat's rotation doesn't go past a certain amount of degrees to stop the player from going backwards.
-		if (boat.eulerAngles.y <= 315 && boat.eulerAngles.y >= 180)
+		if (boat.eulerAngles.y <= 300 && boat.eulerAngles.y >= 180)
 			boat.rigidbody.AddTorque(0, 2 * BoatTurn, 0);
-		else if (boat.eulerAngles.y >= 45 && boat.eulerAngles.y <= 180)
+		else if (boat.eulerAngles.y >= 60 && boat.eulerAngles.y <= 180)
 			boat.rigidbody.AddTorque(0, 2 * -BoatTurn, 0);
 
 		// Smoothstep lerp the rotation of the camera between the player's first person view direction and the world's forward direction.

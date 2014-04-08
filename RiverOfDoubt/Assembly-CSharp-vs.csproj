@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\scrBoat.cs" />
      <Compile Include="Assets\Scripts\scrCollectionText.cs" />
      <Compile Include="Assets\Scripts\scrController.cs" />
+     <Compile Include="Assets\Scripts\scrCrate.cs" />
      <Compile Include="Assets\Scripts\scrDespawn.cs" />
      <Compile Include="Assets\Scripts\scrDespawnParticleSystem.cs" />
      <Compile Include="Assets\Scripts\scrFacePlayer.cs" />

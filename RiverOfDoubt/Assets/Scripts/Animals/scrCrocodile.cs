@@ -3,7 +3,7 @@ using System.Collections;
 
 public class scrCrocodile : scrAnimal
 {
-	 
+	public GameObject LeatherPrefab; 
 
 	private enum SinkState { Sink, Rise, Stable };
 	private SinkState sink = SinkState.Stable;
@@ -139,6 +139,9 @@ public class scrCrocodile : scrAnimal
 
 		foreach (Collider collider in this.GetComponentsInChildren<Collider>())
 			Destroy (collider);
+
+		// Collect leather.
+		scrGUI3D.CollectItem(LeatherPrefab, this.transform.position, 1f);
 
 		base.Kill ();
 	}

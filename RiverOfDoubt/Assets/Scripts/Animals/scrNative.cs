@@ -3,7 +3,7 @@ using System.Collections;
 
 public class scrNative : scrAnimal
 {
-	public GameObject WhatPrefab;
+	public GameObject IdolPrefab;
 	public GameObject SpearPrefab;
 	private bool hopDirection = true;
 	private GameObject player;
@@ -79,7 +79,7 @@ public class scrNative : scrAnimal
 	public override void Kill ()
 	{
 		// Collect a feather.
-		scrGUI3D.CollectItem(WhatPrefab, this.transform.position, 1f, scrGUI3D.Parts.Feather);
+		scrGUI3D.CollectItem(IdolPrefab, this.transform.position, 1);
 		Destroy(this.GetComponent<scrFacePlayer>());
 
 		// Detach the mask and give it a random torque.
