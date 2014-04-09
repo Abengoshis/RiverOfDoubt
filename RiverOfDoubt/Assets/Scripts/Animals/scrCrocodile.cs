@@ -23,6 +23,9 @@ public class scrCrocodile : scrAnimal
 	private const float ROLL_OVER_DELAY = 4f;
 	private bool rollLeft;
 
+	private float attackTimer = -1;
+	private const float ATTACK_DELAY = 1.0f;
+
 	// Use this for initialization
 	void Start ()
 	{
@@ -59,6 +62,20 @@ public class scrCrocodile : scrAnimal
 			this.rigidbody.useGravity = true;
 
 			return;
+		}
+		else
+		{
+			if (attackTimer != -1)
+			{
+				attackTimer += Time.deltaTime;
+				if (attackTimer >= ATTACK_DELAY)
+				{
+					foreach (Collider c in this.transform.Find("Croc").Find("Head").GetComponents<Collider>())
+						c.enabled = true;
+
+					attackTimer = -1;
+				}
+			}
 		}
 
 		if (chasing == false)
@@ -160,7 +177,18 @@ public class scrCrocodile : scrAnimal
 	{
 		if (Health > 0 && collision.transform.root.name == "Boat") 
 		{
-			this.rigidbody.AddForce(this.transform.forward * -10, ForceMode.Impulse);
+			if (attackTimer == -1)
+			{
+				this.rigidbody.AddForce(this.transform.forward * -10, ForceMode.Impulse);
+
+				foreach (Collider c in this.transform.Find("Croc").Find("Head").GetComponents<Collider>())
+				{
+					Debug.Log ("HI");
+					c.enabled = false;
+				}
+
+				attackTimer = 0;
+			}
 
 			// Force the crocodile to attack.
 			if (chasing == false)

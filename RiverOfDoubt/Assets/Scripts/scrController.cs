@@ -17,6 +17,8 @@ public class scrController : MonoBehaviour
 	public bool PlayerIsFocus;	// Whether the player can be controlled.
 	public float WalkSpeed;	// The speed to apply when walking.
 	public float BoatSpeed;	// The speed of the boat.
+	public float BoatSlowSpeed;
+	public float BoatFastSpeed;
 	public float BoatTurn;	// The turn speed of the boat.
 	private Transform boat { get { return this.transform.root; } }
 
@@ -47,11 +49,6 @@ public class scrController : MonoBehaviour
 	void Update ()
 	{
 		// DEBUG
-		if (Input.GetKey(KeyCode.B))
-			BoatSpeed = 50;
-		else
-			BoatSpeed = 10;
-
 		if (Input.GetKey (KeyCode.F5))
 			Application.LoadLevel (0);
 
@@ -136,9 +133,54 @@ public class scrController : MonoBehaviour
 	
 	void FixedUpdate()
 	{
-		// Accelerate the boat forwards.
-		boat.rigidbody.velocity += boat.transform.forward * BoatSpeed * Time.fixedDeltaTime * 0.2f;
-		boat.rigidbody.velocity = boat.transform.forward * Mathf.Min (boat.rigidbody.velocity.magnitude, BoatSpeed);
+		if (PlayerIsFocus == false && Input.GetAxis ("Vertical") > 0)
+		{
+			// Accelerate the boat forwards.
+			boat.rigidbody.velocity += boat.transform.forward * BoatFastSpeed * Time.fixedDeltaTime * 0.2f;
+
+			// Keep the boat below the fast speed.
+			boat.rigidbody.velocity = boat.transform.forward * Mathf.Min (boat.rigidbody.velocity.magnitude, BoatFastSpeed);
+
+			
+			Camera.main.fieldOfView = Mathf.Lerp (Camera.main.fieldOfView, 70, 0.01f);
+		}
+		else if (PlayerIsFocus == false && Input.GetAxis ("Vertical") < 0)
+		{
+
+			// Slow the boat GRADUALLY if its going faster than it should be.
+			if (boat.rigidbody.velocity.magnitude > BoatSlowSpeed)
+			{
+				boat.rigidbody.velocity -= boat.transform.forward * BoatSpeed * Time.fixedDeltaTime;
+			}
+			else
+			{
+				// Accelerate the boat forwards.
+				boat.rigidbody.velocity += boat.transform.forward * BoatSlowSpeed * Time.fixedDeltaTime * 0.2f;
+			}
+			
+			boat.rigidbody.velocity = boat.transform.forward * boat.rigidbody.velocity.magnitude;
+
+			
+			Camera.main.fieldOfView = Mathf.Lerp (Camera.main.fieldOfView, 50, 0.01f);
+		}
+		else
+		{
+			// Slow the boat GRADUALLY if its going faster than it should be.
+			if (boat.rigidbody.velocity.magnitude > BoatSpeed)
+			{
+				boat.rigidbody.velocity -= boat.transform.forward * BoatSpeed * Time.fixedDeltaTime;
+			}
+			else
+			{
+				// Accelerate the boat forwards.
+				boat.rigidbody.velocity += boat.transform.forward * BoatSpeed * Time.fixedDeltaTime * 0.2f;
+			}
+
+			boat.rigidbody.velocity = boat.transform.forward * boat.rigidbody.velocity.magnitude;
+
+			
+			Camera.main.fieldOfView = Mathf.Lerp (Camera.main.fieldOfView, 60, 0.01f);
+		}
 
 		// Control either the player or the boat.
 		if (PlayerIsFocus == true)

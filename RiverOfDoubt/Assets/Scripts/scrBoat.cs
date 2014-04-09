@@ -4,6 +4,7 @@ using System.Collections;
 public class scrBoat : MonoBehaviour
 {
 	public static float Health { get; private set; }
+	public static ulong Distance { get; private set; }
 	public const int HEALTH_MAX = 100;
 
 	public GameObject BigSplashPrefab;
@@ -38,6 +39,8 @@ public class scrBoat : MonoBehaviour
 
 			wobble = Mathf.Lerp (wobble, 10, wobbleTimer / wobbleDelay);
 		}
+
+		Distance = (ulong)(this.transform.position.z + 225) / 2;
 	}
 
 	void OnCollisionEnter(Collision collision)
@@ -60,12 +63,11 @@ public class scrBoat : MonoBehaviour
 			// Find how much damage to do by comparing the angle between the forward vector of the boat and the direction to the contact point.
 			float damage = 180 - Vector3.Angle(this.transform.forward, collision.contacts[0].point - this.transform.position);
 
-			Debug.Log (damage);
-
 			// Deal damage over time.
 			Health -= damage * 0.05f * Time.deltaTime;
 
 			// Make a crunch noise.
+			//todo:
 		}
 	}
 
@@ -79,6 +81,8 @@ public class scrBoat : MonoBehaviour
 				otherSection.PreviousSection.DestroyRedundantSections(otherSection);
 
 			otherSection.GenerateNextSections(true);
+
+			return;
 		}
 
 		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
@@ -161,7 +165,25 @@ public class scrBoat : MonoBehaviour
 
 				// Instantly destroy the obstacle's collider so it doesn't collide again.
 				Destroy (other);
+
+				return;
 			}
+		}
+
+		if (other.name == "Crate(Clone)")
+		{
+			scrCrate crate = other.GetComponent<scrCrate>();
+			scrGUI3D.CollectItem(crate.Powerup, crate.transform.position, 1f);
+			switch(crate.Powerup.name)
+			{
+			case "Health":
+				Health += 10;
+				if (Health > HEALTH_MAX)
+					Health = HEALTH_MAX;
+				break;
+			}
+
+			Destroy(crate);
 		}
 	}
 

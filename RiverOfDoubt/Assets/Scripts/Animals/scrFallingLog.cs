@@ -25,7 +25,7 @@ public class scrFallingLog : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
-		if (other.tag == "Obstacle")
+		if (other.tag == "Obstacle" && other.name != "Whirlpool(Clone)" && other.GetComponent<Rigidbody>())
 		{
 			this.rigidbody.velocity = Vector3.zero;
 			Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);

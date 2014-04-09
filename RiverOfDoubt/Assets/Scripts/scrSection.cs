@@ -12,11 +12,18 @@ public class scrSection : MonoBehaviour
 	}
 
 	// Properties of the section.
-	public int RocksToGenerate = 10;
-	public int TreeBirdsToGenerate = 5;
-	public int OverheadBirdsToGenerate = 5;
-	public int ElephantsToGenerate = 3;
-	public int HutsOrCrocodilesToGenerate = 5;
+	public int MinRocksToGenerate = 10;		
+	public int MaxRocksToGenerate = 15;
+	public int MinCratesToGenerate = 8;	
+	public int MaxCratesToGenerate = 16;
+	public int MinTreeBirdsToGenerate = 5;	
+	public int MaxTreeBirdsToGenerate = 8;
+	public int MinOverheadBirdsToGenerate = 10;	
+	public int MaxOverheadBirdsToGenerate = 20;
+	public int MinElephantsToGenerate = 2;	
+	public int MaxElephantsToGenerate = 5;
+	public int MinHutsOrCrocodilesToGenerate = 5;	
+	public int MaxHutsOrCrocodilesToGenerate = 15;
 	public Transform[] Connectors;
 	public bool CanGenerateSplitters;
 	public bool IsSplitterSection { get; protected set; }
@@ -30,14 +37,14 @@ public class scrSection : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		// Some sections have preset rocks. Deparent them if this is the case in order for them to function properly.
-		if (name == "Section_Lake_Volcano_Huts(Clone)")
+		// Some sections have preset rocks and animals. Deparent them if this is the case in order for them to function properly.
+		if (name == "Section_Lake_Volcano_Huts(Clone)" || name == "Section_Temple_Natives(Clone)")
 		{
-			StartCoroutine(FreeChildRocks());
+			StartCoroutine(FreeChildPiggybackers());
 		}
 	}
 
-	private IEnumerator FreeChildRocks()
+	private IEnumerator FreeChildPiggybackers()
 	{
 		foreach (Transform child in GetComponentsInChildren<Transform>(true))
 		{
@@ -46,14 +53,13 @@ public class scrSection : MonoBehaviour
 				if (child.Find ("Graphics"))
 					child.parent = null;
 			}
-
-
-			if (child.name == "LeftRocks")
-				Debug.Log ("LeftRocks");
-
-			if (child.name.Contains("rock"))
+			else if (child.name.Contains("rock"))
 			{
 				child.gameObject.SetActive(true);
+			}
+			else if (child.GetComponent<scrAnimal>())
+			{
+				child.parent = null;
 			}
 
 			yield return new WaitForSeconds(0.1f);
@@ -82,11 +88,11 @@ public class scrSection : MonoBehaviour
 			{
 				int section = 0;
 
-				// Find and add a random section to the connector. (If the section can generate splitters, give it a 50% chance to do so).
-				if (CanGenerateSplitters == true && Random.Range (0, 2) == 0)
+				// Find and add a random section to the connector. (If the section can generate splitters, give it a 50% chance to do so). (Don't allow sections just after splitters to craete more splitters. Doing so would create unnecessary lag and reveal the backfaces of some sections).
+				if (CanGenerateSplitters == true && (PreviousSection == null || PreviousSection.name.Contains ("Split") == false) && Random.Range (0, 2) == 0)
 				{
 					// If splitters can be generated, and the 50% chance has been achieved, and the previous section's previous section isn't a splitter, then give an extra 25% chance to create a special section.
-					if (PreviousSection != null && PreviousSection.IsSplitterSection == false && Random.Range (0, 4) == 0)
+					if (PreviousSection != null && Random.Range (0, 4) == 0)
 					{
 						Debug.Log (PreviousSection.name);
 						nextSections[i] = ((GameObject)Instantiate(gameManager.SpecialSections[section = Random.Range(0, gameManager.SpecialSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
@@ -122,16 +128,20 @@ public class scrSection : MonoBehaviour
 				}
 
 				nextSections[i].SectionIndex = section;
+				Debug.Log (nextSections[i].name + " generated after " + this.name);
 
 				// Generate rocks for the next section.
-				//nextSections[i].GenerateRocks(10);
-				if (rocks == null && RocksToGenerate > 0)
-					StartCoroutine(GenerateRocks(RocksToGenerate));
+				if (this.name != "Section_Start")
+				{
+					if (rocks == null && MaxRocksToGenerate > 0)
+						StartCoroutine(GenerateRocksAndCrates(Random.Range (MinRocksToGenerate, MaxRocksToGenerate + 1), Random.Range (MinCratesToGenerate, MaxCratesToGenerate + 1)));
 
-				//nextSections[i].GenerateAnimals(20, 4, 3, 10);
-				if (nativeAnimals.Count == 0)
-					StartCoroutine(GenerateAnimals(TreeBirdsToGenerate, OverheadBirdsToGenerate, ElephantsToGenerate, HutsOrCrocodilesToGenerate, Random.Range (0, 3) == 0));
-
+					if (nativeAnimals.Count == 0)
+						StartCoroutine(GenerateAnimals(Random.Range (MinTreeBirdsToGenerate, MaxTreeBirdsToGenerate + 1),
+						                               Random.Range (MinOverheadBirdsToGenerate, MaxOverheadBirdsToGenerate + 1),
+						                               Random.Range (MinElephantsToGenerate, MaxElephantsToGenerate + 1),
+						                               Random.Range (MinHutsOrCrocodilesToGenerate, MaxHutsOrCrocodilesToGenerate + 1), Random.Range (0, 3) == 0));
+				}
 				// Set the previous section of the next section to this section.
 				nextSections[i].PreviousSection = this;
 			}
@@ -142,6 +152,7 @@ public class scrSection : MonoBehaviour
 			for (int i = 0; i < nextSections.Length; i++)
 			{
 				nextSections[i].GenerateNextSections(false);
+				Debug.Log ("Generating indirect section " + i);
 			}
 
 			// Flag as entered.
@@ -295,10 +306,9 @@ public class scrSection : MonoBehaviour
 		#endregion
 	}
 
-	public IEnumerator GenerateRocks(int numRocks)
+	public IEnumerator GenerateRocksAndCrates(int numRocks, int numCrates)
 	{
-		if (IsSplitterSection == true && gameManager.SplitterSections[SectionIndex].name.Contains ("Huts") ||
-		    IsSplitterSection == false && gameManager.Sections[SectionIndex].name.Contains ("Huts")) yield break;
+		if (numRocks == 0 && numCrates == 0) yield break;
 
 		// Get all children of this object.
 		Transform[] children = gameObject.GetComponentsInChildren<Transform>();
@@ -314,11 +324,13 @@ public class scrSection : MonoBehaviour
 				waters.Add(children[i]);
 
 				// Find the minimum furthest left water plane.
-				float currentX = children[i].transform.position.x - transform.localScale.x * 10;
+				float currentX = children[i].collider.bounds.min.x;
 				if (currentX < minX)
 					minX = currentX;
 			}
 		}
+	
+		minX += 10f;
 
 		// Get the large rock transform for convenience.
 		Transform largeRock = gameManager.Rocks[gameManager.Rocks.Length - 1].transform;
@@ -329,9 +341,9 @@ public class scrSection : MonoBehaviour
 
 		// Create an array of available positions to perform the lottery operation on.
 		Vector2[,] availablePositions = new Vector2[rocksAcross, rocksDown];
-		for (int i = 0; i < rocksAcross; i++)
-			for (int j = 0; j < rocksDown; j++)
-				availablePositions[i, j] = new Vector2(i - 1, j);
+		for (int i = 0; i < rocksDown; i++)
+			for (int j = 0; j < rocksAcross; j++)
+				availablePositions[j, i] = new Vector2(j, i);
 
 		// Make sure there can't be more rocks across and down than there are spaces for rocks!
 		if (numRocks > rocksAcross * rocksDown)
@@ -341,22 +353,40 @@ public class scrSection : MonoBehaviour
 		rocks = new Transform[numRocks];
 
 		// Generate rocks.
-		for (int i = 0; i < rocksDown && numRocks > 0; i++)
+		for (int i = 0; i < rocksDown && (numRocks > 0 || numCrates > 0); i++)
 		{
-			for (int j = 0; j < rocksAcross && numRocks > 0; j++)
+			for (int j = 0; j < rocksAcross && (numRocks > 0 || numCrates > 0); j++)
 			{
-				int positionDown = Random.Range (i, rocksDown);
-				int positionAcross = Random.Range (j, rocksAcross);
+				// Get a random position after the current position by converting to a 1D coordinate.
+				int position1D = Random.Range (i * rocksAcross + j, rocksAcross * rocksDown);
 
-				// Instantiate the rock.
-				rocks[numRocks - 1] = ((GameObject)Instantiate (gameManager.Rocks[Random.Range (0, gameManager.Rocks.Length)],
-	             	new Vector3(minX, waters[0].position.y, this.transform.position.z) + new Vector3(availablePositions[positionAcross, positionDown].x, 0, availablePositions[positionAcross, positionDown].y) * largeRock.localScale.x,
-	            	gameManager.Rocks[0].transform.rotation)).transform;
+				// Convert the position to 2D coordinates.
+				int positionDown = Mathf.FloorToInt (position1D / rocksAcross);
+				int positionAcross =  position1D % rocksAcross;
 
-				rocks[numRocks - 1].FindChild ("Graphics").rotation = Quaternion.Euler(Random.Range (0, 360), Random.Range (0, 360), Random.Range (0, 360));
+				if (numRocks > 0)
+				{
+					// Instantiate the rock.
+					rocks[numRocks - 1] = ((GameObject)Instantiate (gameManager.Rocks[Random.Range (0, gameManager.Rocks.Length)],
+		             	new Vector3(minX, waters[0].position.y, this.transform.position.z) + new Vector3(availablePositions[positionAcross, positionDown].x, 0, availablePositions[positionAcross, positionDown].y) * largeRock.localScale.x,
+		            	gameManager.Rocks[0].transform.rotation)).transform;
 
-				// Decrease the number of rocks.
-				numRocks--;
+					rocks[numRocks - 1].FindChild ("Graphics").rotation = Quaternion.Euler(Random.Range (0, 360), Random.Range (0, 360), Random.Range (0, 360));
+
+					// Decrease the number of rocks.
+					numRocks--;
+				}
+				else
+				{
+					// Instantiate the crate.
+					nativeAnimals.Add(((GameObject)Instantiate (gameManager.CratePrefab,
+					                                            new Vector3(minX, waters[0].position.y, this.transform.position.z) +
+					                                            	new Vector3(availablePositions[positionAcross, positionDown].x, 0, availablePositions[positionAcross, positionDown].y) * largeRock.localScale.x,
+					                                            Quaternion.identity)).transform);
+
+					// Decrease the number of crates.
+					numCrates--;
+				}
 
 				// Swap the current available position along and the found position.
 				Vector2 temp = availablePositions[j, i];
@@ -381,7 +411,17 @@ public class scrSection : MonoBehaviour
 		for (int i = nativeAnimals.Count - 1; i >= 0; i--)
 		{
 			if (nativeAnimals[i] != null)
+			{
+				if (nativeAnimals[i].GetComponent<scrCrocodile>())
+				{
+					nativeAnimals[i].rigidbody.constraints = RigidbodyConstraints.None;
+					nativeAnimals[i].rigidbody.useGravity = true;
+					nativeAnimals[i].GetComponent<scrCrocodile>().enabled = false;
+					Destroy (nativeAnimals[i].gameObject, 3);
+				}
+
 				Destroy (nativeAnimals[i].gameObject);
+			}
 
 			nativeAnimals.RemoveAt (i);
 		}

@@ -32,7 +32,7 @@ public class scrWhirlpool : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
-		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle") && other.name != "Log(Clone)")
+		if (other.name == "Crate(Clone)" || other.gameObject.layer == LayerMask.NameToLayer("Obstacle") && other.name != "Log(Clone)")
 		{
 			Destroy(other.transform.root.gameObject);
 		}

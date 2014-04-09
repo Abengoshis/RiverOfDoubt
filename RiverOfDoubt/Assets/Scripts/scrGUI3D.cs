@@ -11,7 +11,6 @@ class Collectable
 
 	public float TimerProgress { get { return collectTimer / collectDelay; } }
 
-
 	public Collectable(Transform transform, float collectDelay)
 	{
 		this.transform = transform;
@@ -116,6 +115,9 @@ public class scrGUI3D : MonoBehaviour
 				pause.SetActive(true);
 				Screen.lockCursor = false;
 				Time.timeScale = 0;
+				inventory.transform.Find ("Distance Points").GetComponent<TextMesh>().text = scrBoat.Distance + "m";
+				inventory.transform.Find ("Total Points").GetComponent<TextMesh>().text = Mathf.Round(collectedParts[0] * 5 + collectedParts[1] * 20 + collectedParts[2] * 50 + collectedParts[3] * 100).ToString();
+
 				openInventoryFudge = false;
 			}
 		}
@@ -218,25 +220,28 @@ public class scrGUI3D : MonoBehaviour
 		collectionItems.Add(new Collectable(item, timeToCollect));
 		instance.audio.PlayOneShot(instance.AudioCollect);
 
-		int part = 0;
+		int part = -1;
 		switch (item.name)
 		{
 		case "Feather(Clone)":
 			part = 0;
 			break;
-		case "Tusk(Clone)":
+		case "Leather(Clone)":
 			part = 1;
 			break;
 		case "Idol(Clone)":
 			part = 2;
 			break;
-		case "Leather(Clone)":
+		case "Tusk(Clone)":
 			part = 3;
 			break;
 		}
 
-		++collectedParts[part];
-		inventory.transform.Find ("Item" + part + " Count").GetComponent<TextMesh>().text = collectedParts[part].ToString();
+		if (part != -1)
+		{
+			++collectedParts[part];
+			inventory.transform.Find ("Item" + part + " Count").GetComponent<TextMesh>().text = collectedParts[part].ToString();
+		}
 	}
 
 	public static void TransitionOverlayIn()

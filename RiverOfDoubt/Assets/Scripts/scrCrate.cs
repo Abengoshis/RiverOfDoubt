@@ -3,14 +3,30 @@ using System.Collections;
 
 public class scrCrate : MonoBehaviour
 {
-	public enum Powerup { Something };
-	public Powerup powerup;
+	public GameObject Powerup;
+	public GameObject[] AvailablePowerups;
 	private int spin;
 
 	// Use this for initialization
 	void Start ()
 	{
 		spin = Random.Range (-50, 51);
+
+		// Choose a powerup.
+		int choice = Random.Range (0, 2);
+
+		if (choice < 1)
+		{
+			Powerup = AvailablePowerups[0];
+		}
+		else if (choice < 2)
+		{
+			Powerup = AvailablePowerups[1];
+		}
+//		else if (choice < 3)
+//		{
+//			Powerup = AvailablePowerups[2];
+//		}
 	}
 	
 	// Update is called once per frame
@@ -24,11 +40,17 @@ public class scrCrate : MonoBehaviour
 		this.transform.Rotate (0, spin * Time.deltaTime, 0);
 	}
 
-	void OnCollisionEnter(Collision collision)
+	void OnDestroy()
 	{
-		if (collision.transform.root.name == "Boat")
+		particleSystem.Play();
+
+		foreach (Renderer childRenderer in GetComponentsInChildren<Renderer>())
 		{
-			Destroy (this.gameObject);
+			if (childRenderer.GetComponent<ParticleSystem>() == false)
+				childRenderer.enabled = false;
 		}
+
+		Destroy (this.collider);
+		Destroy (this.gameObject, 4);
 	}
 }
