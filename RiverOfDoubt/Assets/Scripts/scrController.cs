@@ -27,7 +27,6 @@ public class scrController : MonoBehaviour
 	public int Gun = 0;
 	private int nextGun = 0;
 	private float changeGunTimer = -1, changeGunDelay = 0.5f;
-	private bool firePressed = false;	// Whether trying to fire.
 	private float recoilTimer = -1, recoilDelay = 0.3f;	// The recoil of the recently fired gun.
 	private Vector3 gunStandardRotation = new Vector3(4.285588f, 2.832306f, 0.2118239f);
 	private Transform gunWielder;
@@ -48,10 +47,6 @@ public class scrController : MonoBehaviour
 
 	void Update ()
 	{
-		// DEBUG
-		if (Input.GetKey (KeyCode.F5))
-			Application.LoadLevel (0);
-
 		if (Time.timeScale == 0)
 			return;
 
@@ -291,10 +286,10 @@ public class scrController : MonoBehaviour
 	void CheckGunFire(Ray hitscan)
 	{
 		// Check if the player wants to shoot.	// HAVE A LIST OF WEAPONS WITH RECOIL VALUES, DAMAGE, MODEL ETC.
-		if (Input.GetAxis("Fire") > 0)
+		if (Input.GetButtonDown("Fire"))
 		{
 			// Don't allow the player to hold down fire, and don't allow shooting while the recoil timer is running.
-			if (firePressed == false && recoilTimer == -1 && Weapons[Gun].Ammo != 0 && AudioShoot.isPlaying == false)
+			if (recoilTimer == -1 && Weapons[Gun].Ammo != 0 && AudioShoot.isPlaying == false)
 			{
 				RaycastHit hit;
 				if (Physics.Raycast (hitscan, out hit, 10000, (1 << LayerMask.NameToLayer("Boat")) | (1 << LayerMask.NameToLayer ("Animal") |  (1 << LayerMask.NameToLayer ("Obstacle")))))
@@ -305,19 +300,14 @@ public class scrController : MonoBehaviour
 					--Weapons[Gun].Ammo;
 
 				recoilTimer = 0;
-				firePressed = true;
 				gunFlash.gameObject.SetActive(true);
 				gunEffect.gameObject.SetActive(true);
 				gunEffect.Rotate (0, 0, Random.Range (45f, 180f), Space.Self);
 
 				AudioShoot.clip = Weapons[Gun].Sound;
 				AudioShoot.pitch = Random.Range (0.9f, 1.1f);
-				AudioShoot.Play ();;
+				AudioShoot.Play ();
 			}
-		}
-		else
-		{
-			firePressed = false;
 		}
 
 		if (recoilTimer != -1)

@@ -53,21 +53,24 @@ public class scrBoat : MonoBehaviour
 				Health -= 10;
 			}
 		}
+
+		OnCollisionStay(collision);
 	}
 
 	void OnCollisionStay(Collision collision)
 	{
+		if (Time.timeScale == 0) return;
+
 		// Check whether the boat has collided with a part of the section.
 		if (collision.transform.root.name.Contains ("Section"))
 		{
 			// Find how much damage to do by comparing the angle between the forward vector of the boat and the direction to the contact point.
-			float damage = 180 - Vector3.Angle(this.transform.forward, collision.contacts[0].point - this.transform.position);
+			float damage = 180 - Vector3.Angle(this.rigidbody.velocity, collision.contacts[0].point - this.transform.position);
+
+			Instantiate (BigSplashPrefab, collision.contacts[0].point, Quaternion.identity);
 
 			// Deal damage over time.
-			Health -= damage * 0.05f * Time.deltaTime;
-
-			// Make a crunch noise.
-			//todo:
+			Health -= damage * 0.5f * this.rigidbody.velocity.magnitude * 0.05f * Time.deltaTime;
 		}
 	}
 
@@ -139,6 +142,12 @@ public class scrBoat : MonoBehaviour
 					Instantiate(BigSplashPrefab, other.transform.TransformPoint(new Vector3(0, 0.5f, 0)), BigSplashPrefab.transform.rotation);
 					Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
 					this.rigidbody.velocity = Vector3.zero;
+
+					foreach (Collider c in other.transform.root.GetComponentsInChildren<Collider>())
+					{
+						Destroy (c);
+					}
+
 					Health -= 15;
 				}
 				else if (other.name == "Spear(Clone)")
@@ -164,7 +173,8 @@ public class scrBoat : MonoBehaviour
 				Destroy (other.transform.root.gameObject, 3);
 
 				// Instantly destroy the obstacle's collider so it doesn't collide again.
-				Destroy (other);
+				if (other != null)
+					Destroy (other);
 
 				return;
 			}

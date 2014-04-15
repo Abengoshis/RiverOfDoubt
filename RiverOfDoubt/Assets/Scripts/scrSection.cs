@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class scrSection : MonoBehaviour
 {
 	private static scrGameManager gameManager;
+	private static int untilSpecial = 3;
 
 	public static void Initialize(scrGameManager _gameManager)
 	{
@@ -38,7 +39,7 @@ public class scrSection : MonoBehaviour
 	void Start ()
 	{
 		// Some sections have preset rocks and animals. Deparent them if this is the case in order for them to function properly.
-		if (name == "Section_Lake_Volcano_Huts(Clone)" || name == "Section_Temple_Natives(Clone)")
+		if (name == "Section_Volcano_Huts(Clone)" || name == "Section_Temple_Natives(Clone)")
 		{
 			StartCoroutine(FreeChildPiggybackers());
 		}
@@ -82,6 +83,8 @@ public class scrSection : MonoBehaviour
 		{
 			// Set the number of next sections to number of connectors.
 			nextSections = new scrSection[Connectors.Length];
+
+			--untilSpecial;
 			
 			// Generate the next sections for each connector.
 			for (int i = 0; i < Connectors.Length; i++)
@@ -89,14 +92,15 @@ public class scrSection : MonoBehaviour
 				int section = 0;
 
 				// Find and add a random section to the connector. (If the section can generate splitters, give it a 50% chance to do so). (Don't allow sections just after splitters to craete more splitters. Doing so would create unnecessary lag and reveal the backfaces of some sections).
-				if (CanGenerateSplitters == true && (PreviousSection == null || PreviousSection.name.Contains ("Split") == false) && Random.Range (0, 2) == 0)
+				if (CanGenerateSplitters == true && (PreviousSection == null || PreviousSection.name.Contains ("Split") == false) && (untilSpecial <= 0 || Random.Range (0, 2) == 0))
 				{
 					// If splitters can be generated, and the 50% chance has been achieved, and the previous section's previous section isn't a splitter, then give an extra 25% chance to create a special section.
-					if (PreviousSection != null && Random.Range (0, 4) == 0)
+					if (PreviousSection != null && (Random.Range (0, 4) == 0 || untilSpecial <= 0))
 					{
 						Debug.Log (PreviousSection.name);
 						nextSections[i] = ((GameObject)Instantiate(gameManager.SpecialSections[section = Random.Range(0, gameManager.SpecialSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
 						nextSections[i].CanGenerateSplitters = false;	// Prevent the next section from creating splitters and special sections.
+						untilSpecial = Random.Range (8, 15);
 					}
 					else
 					{
@@ -212,7 +216,7 @@ public class scrSection : MonoBehaviour
 			Transform replacement = ((GameObject)Instantiate (gameManager.ElephantPrefab, animalHooks[i].position + animalHooks[i].forward + Vector3.up * 0.05f, animalHooks[i].rotation)).transform;
 			
 			// Choose whether to put a tree in front of the elephant.
-			if (Random.Range(0, 2) == 0)
+			if (Random.Range(0, 4) < 3)
 			{
 				Transform fallingLog = ((GameObject)Instantiate(gameManager.FallingLogPrefab, animalHooks[i].position + animalHooks[i].forward + Vector3.up * gameManager.FallingLogPrefab.transform.localScale.y * 0.52f, animalHooks[i].rotation)).transform;
 				nativeAnimals.Add(fallingLog);

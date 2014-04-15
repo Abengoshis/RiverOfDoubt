@@ -93,6 +93,8 @@ public class scrAnimal : MonoBehaviour
 
 		foreach (Transform child in GetComponentsInChildren<Transform>())
 			child.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
+
+		rigidbody.constraints = RigidbodyConstraints.None;
 	}
 
 	void OnTriggerEnter(Collider other)

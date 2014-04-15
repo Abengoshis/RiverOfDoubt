@@ -49,7 +49,7 @@ public class scrGUI3D : MonoBehaviour
 	private static float chestTimer = 0;
 	private static float chestDelay = 0.5f;
 	
-	private static int[] collectedParts = new int[4];
+	private static int[] collectedParts = new int[5];
 
 	private static scrGUI3D instance;
 	private static Camera gunCamera;
@@ -60,6 +60,7 @@ public class scrGUI3D : MonoBehaviour
 
 	private static bool openInventoryFudge = false;
 	private static GameObject inventory;
+	private static GameObject menu;
 	private static GameObject pause;
 	private static Transform healthBar;
 
@@ -71,6 +72,7 @@ public class scrGUI3D : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+		Time.timeScale = 1;
 		instance = this;
 		gunCamera = Camera.main.transform.Find("Gun Camera").camera;
 		overlay = this.transform.Find("Overlay");
@@ -81,6 +83,8 @@ public class scrGUI3D : MonoBehaviour
 		inventory.SetActive(false);
 		pause = this.transform.Find ("Pause").gameObject;
 		pause.SetActive(false);
+		menu = this.transform.Find ("PauseMenu").gameObject;
+		menu.SetActive(false);
 		healthBar = this.transform.Find ("Health").Find ("Bar").transform;
 	}
 
@@ -89,22 +93,65 @@ public class scrGUI3D : MonoBehaviour
 	{
 		if (pause.activeSelf == true)
 		{
+			if (inventory.activeSelf == false)
+			{
+				foreach (Transform t in menu.GetComponentsInChildren<Transform>())
+					if (t.name == "Button")
+						t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.35f));
+
+				RaycastHit hit;
+				if (Physics.Raycast (this.camera.ScreenPointToRay(Input.mousePosition), out hit, 100, 1 << LayerMask.NameToLayer("GUI")))
+				{
+					Transform button = hit.transform;
+					button.renderer.material.SetColor("_Color", new Color(button.renderer.material.color.r, button.renderer.material.color.g, button.renderer.material.color.b, 0.5f));
+					
+					if (Input.GetMouseButtonDown(0))
+					{
+						switch(button.parent.name)
+						{
+						case "Continue":
+							inventory.SetActive(false);
+							pause.SetActive(false);
+							menu.SetActive(false);
+							Screen.lockCursor = true;
+							Time.timeScale = 1;
+							return;
+						case "Restart":
+							Time.timeScale = 1;
+							Screen.lockCursor = true;
+							Application.LoadLevel("Loading");
+							return;
+						case "Main Menu":
+							Time.timeScale = 1;
+							Screen.lockCursor = false;
+							Application.LoadLevel("Menu");
+							return;
+						}
+					}
+			}
+			}
+
 			Time.timeScale = 0;
+			audio.volume = 0.2f;
 
 			// Check for exiting the inventory as well as the pause meny.
 			if (Input.GetKeyDown (KeyCode.Escape) || inventory.activeSelf == true && Input.GetButtonDown("Interact") == true)
 			{
 				inventory.SetActive(false);
 				pause.SetActive(false);
+				menu.SetActive(false);
 				Screen.lockCursor = true;
 				Time.timeScale = 1;
 			}
 		}
 		else
 		{
+			audio.volume = 0.6f;
+
 			if (Input.GetKeyDown(KeyCode.Escape) == true)
 			{
 				pause.SetActive(true);
+				menu.SetActive(true);
 				Screen.lockCursor = false;
 				Time.timeScale = 0;
 			}
@@ -198,7 +245,9 @@ public class scrGUI3D : MonoBehaviour
 	void OnGUI()
 	{
 		if (inventory.activeSelf == false && ReticleIsVisible == true)
+		{
 			GUI.DrawTextureWithTexCoords(reticleDestination, ReticleTexture, reticleSource);
+		}
 	}
 
 	public static void CollectItem(GameObject itemPrefab, Vector3 worldPosition, float timeToCollect)
@@ -218,7 +267,7 @@ public class scrGUI3D : MonoBehaviour
 		}
 
 		collectionItems.Add(new Collectable(item, timeToCollect));
-		instance.audio.PlayOneShot(instance.AudioCollect);
+		instance.audio.PlayOneShot(instance.AudioCollect, 0.5f);
 
 		int part = -1;
 		switch (item.name)
@@ -232,8 +281,11 @@ public class scrGUI3D : MonoBehaviour
 		case "Idol(Clone)":
 			part = 2;
 			break;
-		case "Tusk(Clone)":
+		case "Guano(Clone)":
 			part = 3;
+			break;
+		case "Tusk(Clone)":
+			part = 4;
 			break;
 		}
 
