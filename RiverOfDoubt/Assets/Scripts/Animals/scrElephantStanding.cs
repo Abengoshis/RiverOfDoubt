@@ -45,7 +45,7 @@ public class scrElephantStanding : scrAnimal
 							this.rigidbody.isKinematic = false;
 							this.rigidbody.freezeRotation = true;
 							this.rigidbody.velocity = direction * 5;
-							Debug.Log ("Pushing Tree");
+							//Debug.Log ("Pushing Tree");
 						}
 					}
 				}

@@ -13,20 +13,16 @@ public class scrCrate : MonoBehaviour
 		spin = Random.Range (-50, 51);
 
 		// Choose a powerup.
-		int choice = Random.Range (0, 2);
+		int choice = Random.Range (0, 3);
 
-		if (choice < 1)
+		if (choice == 0)
 		{
 			Powerup = AvailablePowerups[0];
 		}
-		else if (choice < 2)
+		else
 		{
 			Powerup = AvailablePowerups[1];
 		}
-//		else if (choice < 3)
-//		{
-//			Powerup = AvailablePowerups[2];
-//		}
 	}
 	
 	// Update is called once per frame
@@ -40,9 +36,18 @@ public class scrCrate : MonoBehaviour
 		this.transform.Rotate (0, spin * Time.deltaTime, 0);
 	}
 
+	void OnTriggerEnter(Collider other)
+	{
+		if (other.name == "Whirlpool" || other.name == "Whirlpool(Clone)")
+		{
+			Destroy (this.gameObject);
+		}
+	}
+
 	void OnDestroy()
 	{
 		particleSystem.Play();
+		audio.Play();
 
 		foreach (Renderer childRenderer in GetComponentsInChildren<Renderer>())
 		{

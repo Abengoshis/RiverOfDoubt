@@ -58,12 +58,13 @@ public class scrBat : scrAnimal
 	public override void Kill ()
 	{
 		// Explode into a bunch of guano going downwards.
-		for (int i = 0; i < 32; i++)
+		for (int i = 0; i < 16; i++)
 		{
 			Rigidbody guano = ((GameObject)Instantiate (GuanoPrefab, this.transform.position, Quaternion.Euler(Random.Range(0, 360), Random.Range(0, 360), Random.Range(0, 360)))).rigidbody;
-			Vector3 direction = new Vector3(Random.Range(-1f, 1f), Random.Range (-0.3f, 0.1f), Random.Range (-1f, 1f));
+			Vector3 direction = new Vector3(Random.Range(-1f, 1f), Random.Range (-0.8f, 0.1f), Random.Range (-1f, 1f));
 			direction.Normalize();
-			guano.rigidbody.velocity = direction * Random.Range(1f, 10f);
+			guano.rigidbody.velocity = direction * Random.Range(0.1f, 2f);
+			guano.transform.localScale = Vector3.one * Random.Range (0.25f, 0.5f);
 			guano.AddTorque(Random.Range (-50, 51), Random.Range (-50, 51), Random.Range (-50, 51));
 			guano.useGravity = true;
 		}

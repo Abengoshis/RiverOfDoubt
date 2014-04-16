@@ -183,7 +183,6 @@ public class scrCrocodile : scrAnimal
 
 				foreach (Collider c in this.transform.Find("Croc").Find("Head").GetComponents<Collider>())
 				{
-					Debug.Log ("HI");
 					c.enabled = false;
 				}
 

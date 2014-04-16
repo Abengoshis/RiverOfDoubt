@@ -99,6 +99,11 @@ public class scrAnimal : MonoBehaviour
 
 	void OnTriggerEnter(Collider other)
 	{
+		if (other.name == "Explosion(Clone)")
+		{
+			Kill ();
+		}
+
 		if (Health <= 0 && other.gameObject.layer == LayerMask.NameToLayer("Water"))
 			Instantiate (SplashEffect, this.transform.position, Quaternion.identity);
 	}

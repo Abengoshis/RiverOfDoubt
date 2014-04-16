@@ -52,11 +52,19 @@ public class scrSection : MonoBehaviour
 			if (child.name.Contains("Rock"))
 			{
 				if (child.Find ("Graphics"))
+				{
 					child.parent = null;
+					child.name += ("(Clone)");
+				}
 			}
 			else if (child.name.Contains("rock"))
 			{
 				child.gameObject.SetActive(true);
+			}
+			else if (child.name == "Crate")
+			{
+				child.name = "Crate(Clone)";
+				child.parent = null;
 			}
 			else if (child.GetComponent<scrAnimal>())
 			{
@@ -97,10 +105,10 @@ public class scrSection : MonoBehaviour
 					// If splitters can be generated, and the 50% chance has been achieved, and the previous section's previous section isn't a splitter, then give an extra 25% chance to create a special section.
 					if (PreviousSection != null && (Random.Range (0, 4) == 0 || untilSpecial <= 0))
 					{
-						Debug.Log (PreviousSection.name);
+						//Debug.Log (PreviousSection.name);
 						nextSections[i] = ((GameObject)Instantiate(gameManager.SpecialSections[section = Random.Range(0, gameManager.SpecialSections.Length)], Connectors[i].position, Connectors[i].rotation)).GetComponent<scrSection>();
 						nextSections[i].CanGenerateSplitters = false;	// Prevent the next section from creating splitters and special sections.
-						untilSpecial = Random.Range (8, 15);
+						untilSpecial = Random.Range (4, 6);
 					}
 					else
 					{
@@ -132,7 +140,7 @@ public class scrSection : MonoBehaviour
 				}
 
 				nextSections[i].SectionIndex = section;
-				Debug.Log (nextSections[i].name + " generated after " + this.name);
+				//Debug.Log (nextSections[i].name + " generated after " + this.name);
 
 				// Generate rocks for the next section.
 				if (this.name != "Section_Start")
@@ -156,7 +164,7 @@ public class scrSection : MonoBehaviour
 			for (int i = 0; i < nextSections.Length; i++)
 			{
 				nextSections[i].GenerateNextSections(false);
-				Debug.Log ("Generating indirect section " + i);
+				//Debug.Log ("Generating indirect section " + i);
 			}
 
 			// Flag as entered.

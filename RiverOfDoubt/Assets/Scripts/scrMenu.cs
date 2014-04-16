@@ -8,6 +8,7 @@ public class scrMenu : MonoBehaviour
 	public Transform MainMenu;
 	public Transform AboutMenu;
 	public Transform CreditsMenu;
+	public Transform ControlsMenu;
 	private byte menu = 0;
 
 	// Use this for initialization
@@ -21,6 +22,10 @@ public class scrMenu : MonoBehaviour
 		button.renderer.material = copy;
 
 		button = CreditsMenu.Find("Back").Find ("Button");
+		copy = new Material(button.renderer.material);
+		button.renderer.material = copy;
+
+		button = ControlsMenu.Find("Back").Find ("Button");
 		copy = new Material(button.renderer.material);
 		button.renderer.material = copy;
 
@@ -41,10 +46,22 @@ Title Font - Duality (Typodermic Fonts Inc.) [dafont.com/duality.font]
 Text Font - F25 Executive (Typodermic Fonts Inc.) [dafont.com/f25-executive.font]
 Title Music - Crash Bandicoot: Jungle Rollers (Naughty Dog)
 Ingame Music - Crash Bandicoot: Boulders (Naughty Dog)
-Collection & Gun Sound Effects - SoundJay
+Game Over, Collection & Gun Sound Effects - SoundJay
 Other Sound Effects - Spyro 3: Year of the Dragon (Insomniac Games)
 Everything Else - Alexander Saye";
 
+		ControlsMenu.Find ("Controls").GetComponent<TextMesh>().text = 
+			@"Roosevelt Controls:
+        Move - W, A, S, D
+        Aim - Mouse Movement
+        Fire Rifle - Left Mouse Button
+        Throw Dynamite - Right Mouse Button (requires dynamite)
+        Interact - E (while looking at chest/doors)
+
+Boat Controls:
+        Steer Left/Right - A, D
+        Accelerate/Decelerate - W, S";
+	
 		foreach (Transform t in MainMenu.GetComponentsInChildren<Transform>())
 		{
 			if (t.name == "Button")
@@ -65,28 +82,35 @@ Everything Else - Alexander Saye";
 			
 			foreach (Transform t in MainMenu.GetComponentsInChildren<Transform>())
 				if (t.name == "Button")
-					t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.35f));
+					t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.15f));
 		}
 		else if (menu == 1)
 		{
 			this.transform.position = Vector3.Lerp (this.transform.position, AboutMenu.Find ("CameraPoint").position, 4f * Time.deltaTime);
 			
 			Transform t = AboutMenu.Find("Back").Find ("Button");
-			t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.35f));
+			t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.15f));
 		}
 		else if (menu == 2)
+		{
+			this.transform.position = Vector3.Lerp (this.transform.position, ControlsMenu.Find ("CameraPoint").position, 4f * Time.deltaTime);
+			
+			Transform t = ControlsMenu.Find("Back").Find ("Button");
+			t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.15f));
+		}
+		else if (menu == 3)
 		{
 			this.transform.position = Vector3.Lerp (this.transform.position, CreditsMenu.Find ("CameraPoint").position, 4f * Time.deltaTime);
 			
 			Transform t = CreditsMenu.Find("Back").Find ("Button");
-			t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.35f));
+			t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.15f));
 		}
 
 		RaycastHit hit;
 		if (Physics.Raycast (this.camera.ScreenPointToRay(Input.mousePosition), out hit, 100, 1 << LayerMask.NameToLayer("GUI")))
 	    {
 			Transform button = hit.transform;
-			button.renderer.material.SetColor("_Color", new Color(button.renderer.material.color.r, button.renderer.material.color.g, button.renderer.material.color.b, 0.5f));
+			button.renderer.material.SetColor("_Color", new Color(button.renderer.material.color.r, button.renderer.material.color.g, button.renderer.material.color.b, 0.4f));
 
 			if (Input.GetMouseButtonDown(0))
 			{
@@ -100,8 +124,12 @@ Everything Else - Alexander Saye";
 					menu = 1;
 					audio.PlayOneShot(ChangeMenu);
 					break;
-				case "Credits":
+				case "Controls":
 					menu = 2;
+					audio.PlayOneShot(ChangeMenu);
+					break;
+				case "Credits":
+					menu = 3;
 					audio.PlayOneShot(ChangeMenu);
 					break;
 				case "Quit":

@@ -7,6 +7,7 @@ public class scrBoat : MonoBehaviour
 	public static ulong Distance { get; private set; }
 	public const int HEALTH_MAX = 100;
 
+	public GameObject ScrapeSplashPrefab;
 	public GameObject BigSplashPrefab;
 	public GameObject SmallSplashPrefab;
 
@@ -14,12 +15,15 @@ public class scrBoat : MonoBehaviour
 	private float wobbleDelay = 3;
 	private float wobbleTimer = 0;
 	private Transform boatHolder;
+	private float timeAtLowSpeed = 0;
+	private scrController controller;
 
 	// Use this for initialization
 	void Start ()
 	{
 		wobbleTimer = wobbleDelay;
 		boatHolder = this.transform.FindChild("BoatHolder");
+		controller = GetComponentInChildren<scrController>();
 		Health = HEALTH_MAX;
 	}
 	
@@ -27,7 +31,28 @@ public class scrBoat : MonoBehaviour
 	void Update ()
 	{
 		if (Time.timeScale == 0)
+		{
+			audio.volume = 0.075f;
 			return;
+		}
+		else
+		{
+			audio.volume = 0.2f;
+		}
+
+		if (Health < 0)
+			Health = 0;
+
+		//--Health;
+
+		if (this.rigidbody.velocity.magnitude < 3)
+		{
+			timeAtLowSpeed += Time.deltaTime;
+		}
+		else
+		{
+			timeAtLowSpeed = 0;
+		}
 
 		if (wobbleTimer < wobbleDelay)
 		{
@@ -40,6 +65,8 @@ public class scrBoat : MonoBehaviour
 			wobble = Mathf.Lerp (wobble, 10, wobbleTimer / wobbleDelay);
 		}
 
+		audio.pitch = 0.8f + this.rigidbody.velocity.magnitude * 0.01f;
+
 		Distance = (ulong)(this.transform.position.z + 225) / 2;
 	}
 
@@ -50,11 +77,23 @@ public class scrBoat : MonoBehaviour
 			if (collision.transform.root.name == "Crocodile(Clone)")
 			{
 				Instantiate(SmallSplashPrefab, collision.transform.Find ("Croc").Find ("Head").position, SmallSplashPrefab.transform.rotation);
-				Health -= 10;
+				Health -= 5;
 			}
 		}
 
-		OnCollisionStay(collision);
+		// Check whether the boat has collided with a part of the section.
+		if (collision.transform.root.name.Contains ("Section"))
+		{
+			Instantiate (BigSplashPrefab, collision.contacts[0].point, Quaternion.identity);
+
+			// Find how much damage to do by comparing the angle between the forward vector of the boat and the direction to the contact point.
+			float damage = 180 - Vector3.Angle(this.rigidbody.velocity, collision.contacts[0].point - this.transform.position);
+
+			Health -= damage * 0.1f;
+
+			
+			OnCollisionStay(collision);
+		}
 	}
 
 	void OnCollisionStay(Collision collision)
@@ -64,13 +103,26 @@ public class scrBoat : MonoBehaviour
 		// Check whether the boat has collided with a part of the section.
 		if (collision.transform.root.name.Contains ("Section"))
 		{
-			// Find how much damage to do by comparing the angle between the forward vector of the boat and the direction to the contact point.
-			float damage = 180 - Vector3.Angle(this.rigidbody.velocity, collision.contacts[0].point - this.transform.position);
+			float damage = 0;
 
-			Instantiate (BigSplashPrefab, collision.contacts[0].point, Quaternion.identity);
+			// Deal constant damage if stuck.
+			if (timeAtLowSpeed > 5)
+			{
+				Health -= timeAtLowSpeed * Time.deltaTime;
+
+				// Find how much damage to do by comparing the angle between the forward vector of the boat and the direction to the contact point.
+				damage = 180 - Vector3.Angle(this.rigidbody.velocity * timeAtLowSpeed, collision.contacts[0].point - this.transform.position);
+			}
+			else
+			{
+				// Find how much damage to do by comparing the angle between the forward vector of the boat and the direction to the contact point.
+				damage = 180 - Vector3.Angle(this.rigidbody.velocity, collision.contacts[0].point - this.transform.position);
+			}
+
+			Instantiate (ScrapeSplashPrefab, collision.contacts[0].point, Quaternion.identity);
 
 			// Deal damage over time.
-			Health -= damage * 0.5f * this.rigidbody.velocity.magnitude * 0.05f * Time.deltaTime;
+			Health -= damage * 0.5f * Mathf.Min(2, this.rigidbody.velocity.magnitude) * 0.05f * Time.deltaTime;
 		}
 	}
 
@@ -88,7 +140,7 @@ public class scrBoat : MonoBehaviour
 			return;
 		}
 
-		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle"))
+		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle") || other.name == "Explosion(Clone)")
 		{
 			if (other.transform.root.name == "SmallRock(Clone)")
 			{
@@ -135,7 +187,7 @@ public class scrBoat : MonoBehaviour
 			if (other.name != "Spear(Clone)")
 				wobbleTimer = 0;
 
-			if (other.name != "Whirlpool(Clone)")
+			if (other.name != "Whirlpool")
 			{
 				if (other.name == "Log(Clone)")
 				{
@@ -155,6 +207,13 @@ public class scrBoat : MonoBehaviour
 					Instantiate(SmallSplashPrefab, other.transform.position + other.transform.forward * 4, SmallSplashPrefab.transform.rotation);
 					this.rigidbody.velocity *= 0.5f;
 					Health -= 2;
+				}
+				else if (other.name == "Explosion(Clone)")
+				{
+					Health -= 5;	
+					Instantiate(BigSplashPrefab, other.transform.position, BigSplashPrefab.transform.rotation);
+					this.rigidbody.velocity = Vector3.zero;
+					wobbleTimer += Time.deltaTime;
 				}
 				else
 				{
@@ -187,9 +246,12 @@ public class scrBoat : MonoBehaviour
 			switch(crate.Powerup.name)
 			{
 			case "Health":
-				Health += 10;
+				Health += 5;
 				if (Health > HEALTH_MAX)
 					Health = HEALTH_MAX;
+				break;
+			case "Dynamite":
+				controller.Weapons[1].Ammo++;
 				break;
 			}
 
@@ -203,7 +265,7 @@ public class scrBoat : MonoBehaviour
 		{
 			if (wobbleTimer >= wobbleDelay)
 			{
-				Health -= 5;
+				Health -= 10;
 				wobbleTimer = 0;
 			}
 

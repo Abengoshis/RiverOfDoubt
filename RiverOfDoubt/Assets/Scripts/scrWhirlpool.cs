@@ -30,9 +30,17 @@ public class scrWhirlpool : MonoBehaviour
 		}
 	}
 
+	void OnCollisionEnter(Collision collision)
+	{
+		if (collision.transform.name == "Crate(Clone)")
+		{
+			Destroy(collision.transform.root.gameObject);
+		}
+	}
+
 	void OnTriggerEnter(Collider other)
 	{
-		if (other.name == "Crate(Clone)" || other.gameObject.layer == LayerMask.NameToLayer("Obstacle") && other.name != "Log(Clone)")
+		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle") && other.name != "Log(Clone)")
 		{
 			Destroy(other.transform.root.gameObject);
 		}

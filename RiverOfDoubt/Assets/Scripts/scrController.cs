@@ -23,11 +23,13 @@ public class scrController : MonoBehaviour
 	private Transform boat { get { return this.transform.root; } }
 
 	public AudioSource AudioShoot, AudioSpeech;
+	public GameObject DynamitePrefab;
 	public Weapon[] Weapons;
 	public int Gun = 0;
 	private int nextGun = 0;
 	private float changeGunTimer = -1, changeGunDelay = 0.5f;
 	private float recoilTimer = -1, recoilDelay = 0.3f;	// The recoil of the recently fired gun.
+	private float throwTimer = -1, throwDelay = 1.0f;
 	private Vector3 gunStandardRotation = new Vector3(4.285588f, 2.832306f, 0.2118239f);
 	private Transform gunWielder;
 	private Transform gunEffect;
@@ -49,6 +51,16 @@ public class scrController : MonoBehaviour
 	{
 		if (Time.timeScale == 0)
 			return;
+
+		// At this point, dirty code is the only way I'm going to get this finished on time. Thankfully this is game design, not software development!
+		if (Weapons[1].Ammo == 0)
+		{
+			Weapons[1].ViewModel.gameObject.SetActive(false);
+		}
+		else
+		{
+			Weapons[1].ViewModel.gameObject.SetActive(true);
+		}
 
 		this.transform.localPosition = new Vector3(this.transform.localPosition.x, 1.6f, this.transform.localPosition.z);
 
@@ -83,7 +95,7 @@ public class scrController : MonoBehaviour
 					}
 					
 					// Light up the door to show you can click it. L4D2 style borders?
-					Debug.Log ("Looking at the door!");
+					//Debug.Log ("Looking at the door!");
 				}
 				else if (hit.collider.name == "Chest")
 				{
@@ -95,7 +107,7 @@ public class scrController : MonoBehaviour
 
 				// Set the material to an outline.
 
-				Debug.Log (hit.transform.name);
+				//Debug.Log (hit.transform.name);
 			}
 		}
 		else
@@ -269,6 +281,7 @@ public class scrController : MonoBehaviour
 		changeGunTimer = 0;
 	}
 
+	// Welp looks like I won't have time to use this.
 	void MakeNextGunActive()
 	{
 		Weapons[Gun].ViewModel.gameObject.SetActive(false);
@@ -307,6 +320,35 @@ public class scrController : MonoBehaviour
 				AudioShoot.clip = Weapons[Gun].Sound;
 				AudioShoot.pitch = Random.Range (0.9f, 1.1f);
 				AudioShoot.Play ();
+			}
+		}
+
+		// Forced dynamite throwing code because I don't have time to add multiple weapons.
+		if (Input.GetButtonDown("Alt Fire"))
+		{
+			// Don't allow the player to hold down fire, and don't allow shooting while the recoil timer is running.
+			if (throwTimer == -1 && Weapons[1].Ammo != 0)
+			{				
+				if (Weapons[1].Ammo > 0)
+					--Weapons[1].Ammo;
+
+				Rigidbody dynamite = ((GameObject)Instantiate(DynamitePrefab, Weapons[1].ViewModel.transform.position, Weapons[1].ViewModel.transform.rotation)).rigidbody;
+				dynamite.velocity = this.transform.root.rigidbody.velocity;
+				dynamite.AddForce(Camera.main.transform.forward * 20 + Vector3.up * 10, ForceMode.Impulse);
+				Physics.IgnoreCollision(dynamite.collider, boat.root.Find("BoatHolder").Find("OuterHitMesh").collider);
+
+				throwTimer = 0;
+				AudioShoot.PlayOneShot (Weapons[1].Sound);
+			}
+		}
+
+		if (throwTimer != -1)
+		{
+			throwTimer += Time.deltaTime;
+			
+			if (throwTimer >= throwDelay)
+			{
+				throwTimer = -1;
 			}
 		}
 

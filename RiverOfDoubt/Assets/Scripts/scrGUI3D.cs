@@ -57,12 +57,15 @@ public class scrGUI3D : MonoBehaviour
 	public Texture2D ReticleTexture;
 	public AudioClip AudioCollect;
 	public GameObject CollectionTextPrefab;
+	private scrController controller;
 
 	private static bool openInventoryFudge = false;
 	private static GameObject inventory;
 	private static GameObject menu;
 	private static GameObject pause;
 	private static Transform healthBar;
+	private static Transform dynamite;
+	private static TextMesh dynamiteCount;
 
 	public static void OpenInventory()
 	{
@@ -72,6 +75,15 @@ public class scrGUI3D : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
+		controller = GameObject.Find ("Player").GetComponentInChildren<scrController>();
+
+		for (int i = 0; i < collectedParts.Length; ++i)
+			collectedParts[i] = 0;
+
+		collectionItems.Clear ();
+		collecting = false;
+
+		collectionPoint = new Vector3(-3.13f, -1.42f, 4.46f);
 		Time.timeScale = 1;
 		instance = this;
 		gunCamera = Camera.main.transform.Find("Gun Camera").camera;
@@ -86,24 +98,46 @@ public class scrGUI3D : MonoBehaviour
 		menu = this.transform.Find ("PauseMenu").gameObject;
 		menu.SetActive(false);
 		healthBar = this.transform.Find ("Health").Find ("Bar").transform;
+		dynamite = this.transform.Find ("Dynamite");
+		dynamiteCount = this.transform.Find ("Dynamite Count").GetComponent<TextMesh>();
 	}
 
 	// Update is called once per frame
 	void Update ()
 	{
+		if (controller.Weapons[1].Ammo == 0)
+		{
+			if (dynamite.gameObject.activeSelf == true)
+			{
+				dynamite.gameObject.SetActive(false);
+				dynamiteCount.gameObject.SetActive(false);
+			}
+		}
+		else
+		{
+			if (dynamite.gameObject.activeSelf == false)
+			{
+				dynamite.gameObject.SetActive(true);
+				dynamiteCount.gameObject.SetActive(true);
+			}
+
+			dynamite.Rotate (60 * Time.deltaTime, 0, 0, Space.Self);
+			dynamiteCount.text = 'x' + controller.Weapons[1].Ammo.ToString();
+		}
+
 		if (pause.activeSelf == true)
 		{
 			if (inventory.activeSelf == false)
 			{
 				foreach (Transform t in menu.GetComponentsInChildren<Transform>())
 					if (t.name == "Button")
-						t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.35f));
+						t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.15f));
 
 				RaycastHit hit;
 				if (Physics.Raycast (this.camera.ScreenPointToRay(Input.mousePosition), out hit, 100, 1 << LayerMask.NameToLayer("GUI")))
 				{
 					Transform button = hit.transform;
-					button.renderer.material.SetColor("_Color", new Color(button.renderer.material.color.r, button.renderer.material.color.g, button.renderer.material.color.b, 0.5f));
+					button.renderer.material.SetColor("_Color", new Color(button.renderer.material.color.r, button.renderer.material.color.g, button.renderer.material.color.b, 0.4f));
 					
 					if (Input.GetMouseButtonDown(0))
 					{
@@ -128,7 +162,7 @@ public class scrGUI3D : MonoBehaviour
 							return;
 						}
 					}
-			}
+				}
 			}
 
 			Time.timeScale = 0;
@@ -146,7 +180,7 @@ public class scrGUI3D : MonoBehaviour
 		}
 		else
 		{
-			audio.volume = 0.6f;
+			audio.volume = 0.5f;
 
 			if (Input.GetKeyDown(KeyCode.Escape) == true)
 			{
@@ -237,11 +271,19 @@ public class scrGUI3D : MonoBehaviour
 		chestLid.localEulerAngles = new Vector3(-60 * Mathf.SmoothStep(chestTimer, chestDelay, chestTimer / chestDelay), 0, 0);
 
 		// Make the healthbar's height correlate to the player's health.
-		healthBar.localScale = Vector3.Lerp (healthBar.localScale, new Vector3(healthBar.localScale.x, 0.95f * scrBoat.Health / scrBoat.HEALTH_MAX, healthBar.localScale.z), 0.1f);
+		healthBar.localScale = Vector3.Lerp (healthBar.localScale, new Vector3(healthBar.localScale.x, 0.95f * Mathf.Max (-0.05f, scrBoat.Health / scrBoat.HEALTH_MAX), healthBar.localScale.z), 0.1f);
 		healthBar.transform.localPosition = Vector3.Lerp (healthBar.transform.localPosition, new Vector3(healthBar.localPosition.x, scrBoat.Health / scrBoat.HEALTH_MAX - 1, healthBar.localPosition.z), 0.1f);
 		healthBar.renderer.material.color = Color.Lerp (new Color(1.0f, 0.01f, 0.0f, 0.8f), new Color(0.35f, 1.0f, 0.0f, 0.8f), healthBar.localPosition.y + 1);
+	
+		if (pause.activeSelf == false && healthBar.localScale.y <= 0.001f)
+		{
+			scrGameOver.FinalScore = Mathf.RoundToInt(collectedParts[0] * 5 + collectedParts[1] * 20 + collectedParts[2] * 50 + collectedParts[3] * 100);
+			Screen.lockCursor = false;
+			Application.LoadLevel("GameOver");
+			return;
+		}
 	}
-
+	
 	void OnGUI()
 	{
 		if (inventory.activeSelf == false && ReticleIsVisible == true)
@@ -267,7 +309,7 @@ public class scrGUI3D : MonoBehaviour
 		}
 
 		collectionItems.Add(new Collectable(item, timeToCollect));
-		instance.audio.PlayOneShot(instance.AudioCollect, 0.5f);
+		instance.audio.PlayOneShot(instance.AudioCollect);
 
 		int part = -1;
 		switch (item.name)
