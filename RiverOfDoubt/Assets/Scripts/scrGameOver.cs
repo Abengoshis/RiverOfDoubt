@@ -17,13 +17,13 @@ public class scrGameOver : MonoBehaviour
 	{
 		foreach (Transform t in Menu.GetComponentsInChildren<Transform>())
 			if (t.name == "Button")
-				t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.35f));
+				t.renderer.material.SetColor("_Color", new Color(t.renderer.material.color.r, t.renderer.material.color.g, t.renderer.material.color.b, 0.15f));
 		
 		RaycastHit hit;
 		if (Physics.Raycast (this.camera.ScreenPointToRay(Input.mousePosition), out hit, 100, 1 << LayerMask.NameToLayer("GUI")))
 		{
 			Transform button = hit.transform;
-			button.renderer.material.SetColor("_Color", new Color(button.renderer.material.color.r, button.renderer.material.color.g, button.renderer.material.color.b, 0.5f));
+			button.renderer.material.SetColor("_Color", new Color(button.renderer.material.color.r, button.renderer.material.color.g, button.renderer.material.color.b, 0.4f));
 			
 			if (Input.GetMouseButtonDown(0))
 			{

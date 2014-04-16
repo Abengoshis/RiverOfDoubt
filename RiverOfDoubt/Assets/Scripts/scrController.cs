@@ -24,6 +24,7 @@ public class scrController : MonoBehaviour
 
 	public AudioSource AudioShoot, AudioSpeech;
 	public GameObject DynamitePrefab;
+	private Vector3 lastArc;
 	public Weapon[] Weapons;
 	public int Gun = 0;
 	private int nextGun = 0;
@@ -92,6 +93,9 @@ public class scrController : MonoBehaviour
 						
 						// Flag as pressed.
 						switchPressed = true;
+
+						// Show the trajectory.
+						Weapons[1].ViewModel.GetComponent<LineRenderer>().enabled = false;
 					}
 					
 					// Light up the door to show you can click it. L4D2 style borders?
@@ -104,8 +108,6 @@ public class scrController : MonoBehaviour
 						scrGUI3D.OpenInventory();
 					}
 				}
-
-				// Set the material to an outline.
 
 				//Debug.Log (hit.transform.name);
 			}
@@ -177,7 +179,7 @@ public class scrController : MonoBehaviour
 			{
 				boat.rigidbody.velocity -= boat.transform.forward * BoatSpeed * Time.fixedDeltaTime;
 			}
-			else
+			else if (boat.rigidbody.velocity.magnitude < BoatSpeed)
 			{
 				// Accelerate the boat forwards.
 				boat.rigidbody.velocity += boat.transform.forward * BoatSpeed * Time.fixedDeltaTime * 0.2f;
@@ -273,6 +275,35 @@ public class scrController : MonoBehaviour
 
 		// Set the player's velocity to the boat's velocity.
 		this.rigidbody.velocity = boat.rigidbody.velocity;
+
+		CheckArcPlot();
+	}
+
+	void CheckArcPlot()
+	{
+		if (!(PlayerIsFocus == true && switchTimer == 0)) return;
+
+		if (Input.GetButton("Alt Fire"))
+		{			
+			if (throwTimer == -1 && Weapons[1].Ammo != 0)
+			{
+				// Show the trajectory.
+				Weapons[1].ViewModel.GetComponent<LineRenderer>().enabled = true;
+
+				float step = 3;
+				Vector3 position = Weapons[1].ViewModel.position;
+				Vector3 direction = Vector3.Lerp (lastArc, boat.rigidbody.velocity + Camera.main.transform.forward * 20 + Vector3.up * 10, Time.deltaTime * 20);
+				lastArc = direction;
+				LineRenderer trajectory = Weapons[1].ViewModel.GetComponent<LineRenderer>();
+				
+				for (int i = 0; i < 50; ++i)
+				{
+					trajectory.SetPosition(i, position);
+					position += direction * Time.deltaTime * step;
+					direction += Physics.gravity * Time.deltaTime * step;
+				}
+			}
+		}
 	}
 
 	void ChangeGun(int gun)
@@ -323,22 +354,33 @@ public class scrController : MonoBehaviour
 			}
 		}
 
-		// Forced dynamite throwing code because I don't have time to add multiple weapons.
 		if (Input.GetButtonDown("Alt Fire"))
 		{
-			// Don't allow the player to hold down fire, and don't allow shooting while the recoil timer is running.
-			if (throwTimer == -1 && Weapons[1].Ammo != 0)
-			{				
-				if (Weapons[1].Ammo > 0)
-					--Weapons[1].Ammo;
+			lastArc = boat.rigidbody.velocity + Camera.main.transform.forward * 20 + Vector3.up * 10;
+		}
 
-				Rigidbody dynamite = ((GameObject)Instantiate(DynamitePrefab, Weapons[1].ViewModel.transform.position, Weapons[1].ViewModel.transform.rotation)).rigidbody;
-				dynamite.velocity = this.transform.root.rigidbody.velocity;
-				dynamite.AddForce(Camera.main.transform.forward * 20 + Vector3.up * 10, ForceMode.Impulse);
-				Physics.IgnoreCollision(dynamite.collider, boat.root.Find("BoatHolder").Find("OuterHitMesh").collider);
+		// Forced dynamite throwing code because I don't have time to add multiple weapons.
+		if (Input.GetButtonUp("Alt Fire"))
+		{
+			if (PlayerIsFocus == true && switchTimer == 0)
+				{
+				// Hide the trajectory.
+				Weapons[1].ViewModel.GetComponent<LineRenderer>().enabled = false;
 
-				throwTimer = 0;
-				AudioShoot.PlayOneShot (Weapons[1].Sound);
+				// Don't allow the player to hold down fire, and don't allow shooting while the recoil timer is running.
+				if (throwTimer == -1 && Weapons[1].Ammo != 0)
+				{				
+					if (Weapons[1].Ammo > 0)
+						--Weapons[1].Ammo;
+
+					Rigidbody dynamite = ((GameObject)Instantiate(DynamitePrefab, Weapons[1].ViewModel.transform.position, Weapons[1].ViewModel.transform.rotation)).rigidbody;
+					dynamite.velocity = this.transform.root.rigidbody.velocity;
+					dynamite.AddForce(Camera.main.transform.forward * 20 + Vector3.up * 10, ForceMode.Impulse);
+					Physics.IgnoreCollision(dynamite.collider, boat.root.Find("BoatHolder").Find("OuterHitMesh").collider);
+
+					throwTimer = 0;
+					AudioShoot.PlayOneShot (Weapons[1].Sound);
+				}
 			}
 		}
 
