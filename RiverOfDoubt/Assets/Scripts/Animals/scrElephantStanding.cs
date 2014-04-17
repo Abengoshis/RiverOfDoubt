@@ -44,6 +44,7 @@ public class scrElephantStanding : scrAnimal
 							direction.Normalize();
 							this.rigidbody.isKinematic = false;
 							this.rigidbody.freezeRotation = true;
+							this.rigidbody.constraints = RigidbodyConstraints.None;
 							this.rigidbody.velocity = direction * 5;
 							//Debug.Log ("Pushing Tree");
 						}
@@ -77,6 +78,8 @@ public class scrElephantStanding : scrAnimal
 		foreach (Collider c in GetComponentsInChildren<Collider>())
 			c.isTrigger = true;
 		this.rigidbody.useGravity = true;
+		this.rigidbody.constraints = RigidbodyConstraints.None;
+		this.rigidbody.isKinematic = false;
 
 		Destroy(this.transform.FindChild("HeadPivot").GetComponent<scrFacePlayer>());
 
@@ -88,12 +91,15 @@ public class scrElephantStanding : scrAnimal
 
 	void OnCollisionEnter(Collision collision)
 	{
-		if (TreeToPush != null)
+		if (Health > 0)
 		{
-			if (collision.gameObject.name == TreeToPush.name)
+			if (TreeToPush != null)
 			{
-				treePushed = true;
-				this.rigidbody.isKinematic = true;
+				if (collision.gameObject.name == TreeToPush.name)
+				{
+					treePushed = true;
+					this.rigidbody.isKinematic = true;
+				}
 			}
 		}
 	}
