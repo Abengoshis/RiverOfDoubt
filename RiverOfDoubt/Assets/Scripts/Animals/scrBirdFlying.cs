@@ -49,6 +49,8 @@ public class scrBirdFlying : scrAnimal
 
 	public override void Kill ()
 	{
+		if (killed) return;
+
 		// Explode into a plume of feathers.
 		for (int i = 0; i < 32; i++)
 		{
@@ -64,8 +66,18 @@ public class scrBirdFlying : scrAnimal
 		this.rigidbody.useGravity = true;
 		this.rigidbody.AddTorque(Random.Range (-100, 101), Random.Range (-100, 101), Random.Range (-100, 101));
 
-		// Collect a feather.
-		scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 1f);
+		// Check whether the script is applied to a elephant!
+		if (this.transform.root.name == "ElephantFlying(Clone)")
+		{
+			// Collect loads of items.
+			for (int i = 0; i < 10; ++i)
+				scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 0.5f + i * 0.5f);
+		}
+		else
+		{
+			// Collect a feather.
+			scrGUI3D.CollectItem(FeatherPrefab, this.transform.position, 1f);
+		}
 
 		base.Kill ();
 	}

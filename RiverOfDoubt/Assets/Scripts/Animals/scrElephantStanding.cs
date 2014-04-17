@@ -51,6 +51,10 @@ public class scrElephantStanding : scrAnimal
 				}
 			}
 		}
+		else
+		{
+			this.transform.Rotate (0, 0, Time.deltaTime * 80);
+		}
 
 		base.Update();
 	}
@@ -67,18 +71,16 @@ public class scrElephantStanding : scrAnimal
 
 	public override void Kill ()
 	{
-		// Give the elephant gravity and push it over.
-		this.rigidbody.isKinematic = false;
+		if (killed) return;
+
+		// Freeze the rigidbody.
+		foreach (Collider c in GetComponentsInChildren<Collider>())
+			c.isTrigger = true;
 		this.rigidbody.useGravity = true;
-		this.rigidbody.freezeRotation = false;
-		//this.rigidbody.AddTorque(0, Random.Range (0, 2) == 2 ? 10000 : -10000, Random.Range (0, 2) == 2 ? 10000 : -10000);
-		Vector3 direction = this.transform.position - player.transform.position;
-		direction.Normalize();
-		this.rigidbody.AddForce(direction * this.rigidbody.mass * 200);
 
 		Destroy(this.transform.FindChild("HeadPivot").GetComponent<scrFacePlayer>());
 
-		// Collect a tusks.
+		// Collect a tusk.
 		scrGUI3D.CollectItem(TuskPrefab, this.transform.position, 1f);
 
 		base.Kill ();

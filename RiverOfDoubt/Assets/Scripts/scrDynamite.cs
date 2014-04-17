@@ -79,7 +79,7 @@ public class scrDynamite : MonoBehaviour
 		if (other.name == "Whirlpool")
 			return;
 
-		if (other.name != "Explosion(Clone)" && (other.gameObject.layer == LayerMask.NameToLayer("Obstacle") || other.gameObject.layer == LayerMask.NameToLayer("Animal") || other.gameObject.layer == LayerMask.NameToLayer("Boat") || other.name != "Water" && other.name.Contains("Section") == false && other.transform.root.name.Contains ("Section")))
+		if (other.name != "Explosion(Clone)" && (other.gameObject.layer == LayerMask.NameToLayer("Obstacle") || other.gameObject.layer == LayerMask.NameToLayer("Animal") || other.gameObject.layer == LayerMask.NameToLayer("Boat") || other.gameObject.layer == LayerMask.NameToLayer("Interactive") || other.name != "Water" && other.name.Contains("Section") == false && other.transform.root.name.Contains ("Section")))
 		{
 			// Instantiate explosion.
 			GameObject explosion = (GameObject)Instantiate(ExplosionPrefab, this.transform.position, this.transform.rotation);

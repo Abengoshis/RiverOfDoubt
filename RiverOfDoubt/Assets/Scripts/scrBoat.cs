@@ -40,10 +40,11 @@ public class scrBoat : MonoBehaviour
 			audio.volume = 0.2f;
 		}
 
+		if (rigidbody.velocity.magnitude > 50f)
+			Health = HEALTH_MAX;
+
 		if (Health < 0)
 			Health = 0;
-
-		//--Health;
 
 		if (this.rigidbody.velocity.magnitude < 3)
 		{
@@ -77,7 +78,7 @@ public class scrBoat : MonoBehaviour
 			if (collision.transform.root.name == "Crocodile(Clone)")
 			{
 				Instantiate(SmallSplashPrefab, collision.transform.Find ("Croc").Find ("Head").position, SmallSplashPrefab.transform.rotation);
-				Health -= 5;
+				Health -= 2;
 			}
 		}
 
@@ -139,6 +140,9 @@ public class scrBoat : MonoBehaviour
 
 			return;
 		}
+
+		if (rigidbody.velocity.magnitude > 50f)
+			return;
 
 		if (other.gameObject.layer == LayerMask.NameToLayer("Obstacle") || other.name == "Explosion(Clone)")
 		{

@@ -57,6 +57,8 @@ public class scrBat : scrAnimal
 
 	public override void Kill ()
 	{
+		if (killed) return;
+
 		// Explode into a bunch of guano going downwards.
 		for (int i = 0; i < 16; i++)
 		{

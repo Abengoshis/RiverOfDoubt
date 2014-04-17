@@ -23,8 +23,16 @@ public class scrCrate : MonoBehaviour
 		{
 			Powerup = AvailablePowerups[1];
 		}
+
+		// Give the crate a chance to collide normally before turning into a trigger.
+		Invoke ("ChangeToTrigger", 0.1f);
 	}
-	
+
+	void ChangeToTrigger()
+	{
+		collider.isTrigger = true;
+	}
+
 	// Update is called once per frame
 	void Update ()
 	{
@@ -34,6 +42,14 @@ public class scrCrate : MonoBehaviour
 			this.transform.position.z);
 
 		this.transform.Rotate (0, spin * Time.deltaTime, 0);
+	}
+
+	void OnCollisionEnter(Collision collision)
+	{
+		if (collision.transform.root.name.Contains("Section"))
+		{
+			Destroy (this.gameObject);
+		}
 	}
 
 	void OnTriggerEnter(Collider other)

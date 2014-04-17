@@ -12,6 +12,7 @@ public class scrAnimal : MonoBehaviour
 	public AudioClip[] AudioIdle;
 	public float Health = 1;
 	private float idleTimer = 0, idleDelay = 0;
+	protected bool killed = false;
 
 	// Use this for initialization
 	void Start ()
@@ -81,6 +82,8 @@ public class scrAnimal : MonoBehaviour
 
 	public virtual void Kill()
 	{
+		if (killed) return;
+
 		// Explode
 		DeathEffect = (GameObject)Instantiate(DeathEffect, this.transform.TransformPoint(DeathEffectPosition), this.transform.rotation);
 		DeathEffect.particleSystem.startSpeed *= DeathEffectScale;
@@ -95,12 +98,18 @@ public class scrAnimal : MonoBehaviour
 			child.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
 		rigidbody.constraints = RigidbodyConstraints.None;
+
+		Health = 0;
+
+		killed = true;
 	}
 
 	void OnTriggerEnter(Collider other)
 	{
+		Debug.Log (other.name);
 		if (other.name == "Explosion(Clone)")
 		{
+			Debug.Log (this.name);
 			Kill ();
 		}
 

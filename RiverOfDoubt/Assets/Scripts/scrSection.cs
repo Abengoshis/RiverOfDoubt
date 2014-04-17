@@ -39,9 +39,20 @@ public class scrSection : MonoBehaviour
 	void Start ()
 	{
 		// Some sections have preset rocks and animals. Deparent them if this is the case in order for them to function properly.
-		if (name == "Section_Volcano_Huts(Clone)" || name == "Section_Temple_Natives(Clone)")
+		if (name == "Section_Temple_Natives(Clone)")
 		{
 			StartCoroutine(FreeChildPiggybackers());
+		}
+		else if (name == "Section_Volcano_Huts(Clone)")
+		{
+			StartCoroutine(FreeChildPiggybackers());
+
+			// Very remote chance of making a flying elephant.
+			if (Random.Range (0, 20) == 0)
+			{
+				Rigidbody elephant = ((GameObject)Instantiate (gameManager.ElephantFlyingPrefab, this.transform.position + new Vector3(Random.Range (-100, 100), 600, Random.Range(20, 50)), gameManager.ElephantFlyingPrefab.transform.rotation)).rigidbody;
+				elephant.AddForce(elephant.transform.forward * 20, ForceMode.VelocityChange);
+			}
 		}
 	}
 
@@ -55,6 +66,7 @@ public class scrSection : MonoBehaviour
 				{
 					child.parent = null;
 					child.name += ("(Clone)");
+					nativeAnimals.Add(child);
 				}
 			}
 			else if (child.name.Contains("rock"))
@@ -65,10 +77,12 @@ public class scrSection : MonoBehaviour
 			{
 				child.name = "Crate(Clone)";
 				child.parent = null;
+				nativeAnimals.Add (child);
 			}
 			else if (child.GetComponent<scrAnimal>())
 			{
 				child.parent = null;
+				nativeAnimals.Add(child);
 			}
 
 			yield return new WaitForSeconds(0.1f);

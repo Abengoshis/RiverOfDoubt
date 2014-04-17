@@ -53,6 +53,8 @@ public class scrBirdSitting : scrAnimal
 
 	public override void Kill ()
 	{
+		if (killed) return;
+
 		// Explode into a plume of feathers.
 		// Explode into a plume of feathers.
 		for (int i = 0; i < 32; i++)

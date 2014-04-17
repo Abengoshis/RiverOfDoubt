@@ -78,6 +78,8 @@ public class scrNative : scrAnimal
 
 	public override void Kill ()
 	{
+		if (killed) return;
+
 		// Collect a feather.
 		scrGUI3D.CollectItem(IdolPrefab, this.transform.position, 1);
 		Destroy(this.GetComponent<scrFacePlayer>());

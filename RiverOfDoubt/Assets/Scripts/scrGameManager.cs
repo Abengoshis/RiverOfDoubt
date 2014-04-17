@@ -11,7 +11,7 @@ public class scrGameManager : MonoBehaviour
 	public GameObject CratePrefab;
 	public GameObject PopulatedPalmPrefab;
 	public GameObject BirdFlyingPrefab;
-	public GameObject ElephantPrefab, FallingLogPrefab;
+	public GameObject ElephantPrefab, FallingLogPrefab, ElephantFlyingPrefab;
 	public GameObject HutAPrefab, HutBPrefab, NativePrefab;
 	public GameObject CrocodilePrefab;
 

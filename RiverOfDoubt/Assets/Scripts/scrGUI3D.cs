@@ -197,7 +197,7 @@ public class scrGUI3D : MonoBehaviour
 				Screen.lockCursor = false;
 				Time.timeScale = 0;
 				inventory.transform.Find ("Distance Points").GetComponent<TextMesh>().text = scrBoat.Distance + "m";
-				inventory.transform.Find ("Total Points").GetComponent<TextMesh>().text = Mathf.Round(collectedParts[0] * 5 + collectedParts[1] * 20 + collectedParts[2] * 50 + collectedParts[3] * 100).ToString();
+				inventory.transform.Find ("Total Points").GetComponent<TextMesh>().text = Mathf.Round(collectedParts[0] * 5 + collectedParts[1] * 25 + collectedParts[2] * 50 + collectedParts[3] * 75 + collectedParts[4] * 100).ToString();
 
 				openInventoryFudge = false;
 			}
@@ -277,7 +277,7 @@ public class scrGUI3D : MonoBehaviour
 	
 		if (pause.activeSelf == false && healthBar.localScale.y <= 0.001f)
 		{
-			scrGameOver.FinalScore = Mathf.RoundToInt(collectedParts[0] * 5 + collectedParts[1] * 20 + collectedParts[2] * 50 + collectedParts[3] * 100);
+			scrGameOver.FinalScore = Mathf.RoundToInt(collectedParts[0] * 5 + collectedParts[1] * 25 + collectedParts[2] * 50 + collectedParts[3] * 75 + collectedParts[4] * 100);
 			Screen.lockCursor = false;
 			Application.LoadLevel("GameOver");
 			return;
@@ -308,7 +308,7 @@ public class scrGUI3D : MonoBehaviour
 			child.gameObject.layer = item.gameObject.layer;
 		}
 
-		collectionItems.Add(new Collectable(item, timeToCollect));
+		collectionItems.Add(new Collectable(item, timeToCollect + Random.Range (-0.5f, 0.5f)));
 		instance.audio.PlayOneShot(instance.AudioCollect);
 
 		int part = -1;
@@ -317,13 +317,13 @@ public class scrGUI3D : MonoBehaviour
 		case "Feather(Clone)":
 			part = 0;
 			break;
-		case "Leather(Clone)":
+		case "Guano(Clone)":
 			part = 1;
 			break;
 		case "Idol(Clone)":
 			part = 2;
 			break;
-		case "Guano(Clone)":
+		case "Leather(Clone)":
 			part = 3;
 			break;
 		case "Tusk(Clone)":

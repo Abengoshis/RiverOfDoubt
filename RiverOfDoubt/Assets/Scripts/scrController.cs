@@ -22,6 +22,7 @@ public class scrController : MonoBehaviour
 	public float BoatTurn;	// The turn speed of the boat.
 	private Transform boat { get { return this.transform.root; } }
 
+	public AudioClip[] speech;
 	public AudioSource AudioShoot, AudioSpeech;
 	public GameObject DynamitePrefab;
 	private Vector3 lastArc;
@@ -52,6 +53,21 @@ public class scrController : MonoBehaviour
 	{
 		if (Time.timeScale == 0)
 			return;
+
+		// Check for boost cheat.
+		if (Input.GetKey (KeyCode.S) && Input.GetKey (KeyCode.A) && Input.GetKey (KeyCode.Y) && Input.GetKey (KeyCode.E) && Input.GetKeyDown(KeyCode.F10))
+		{
+			if (BoatFastSpeed == 20)
+			{
+				BoatFastSpeed = 200;
+				AudioSpeech.PlayOneShot(speech[0], 0.3f);
+			}
+			else
+			{
+				BoatFastSpeed = 20;
+				AudioSpeech.PlayOneShot(speech[1], 0.3f);
+			}
+		}
 
 		// At this point, dirty code is the only way I'm going to get this finished on time. Thankfully this is game design, not software development!
 		if (Weapons[1].Ammo == 0)

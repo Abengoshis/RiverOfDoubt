@@ -150,6 +150,8 @@ public class scrCrocodile : scrAnimal
 	
 	public override void Kill ()
 	{
+		if (killed) return;
+
 		// Stop facing the player.
 		foreach (scrFacePlayer enabledFaceScript in this.GetComponentsInChildren<scrFacePlayer>())
 			enabledFaceScript.enabled = false;
